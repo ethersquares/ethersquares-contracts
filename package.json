@@ -1,0 +1,25 @@
+{
+  "name": "etherboxes-contracts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "contracts for the etherboxes site",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etherboxes/contracts.git"
+  },
+  "author": "Moody Salem",
+  "bugs": {
+    "url": "https://github.com/etherboxes/contracts/issues"
+  },
+  "homepage": "https://github.com/etherboxes/contracts#readme",
+  "devDependencies": {
+    "truffle": "^4.0.4",
+    "zeppelin-solidity": "^1.5.0"
+  }
+}
