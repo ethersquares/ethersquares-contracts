@@ -50,10 +50,11 @@ contract('Boxes', ([ owner, ...betters ]) => {
     });
 
     it('disallows betting on invalid boxes', async () => {
-      expectThrow(b.bet(0, 10, { value: 100, from: better1 }));
-      expectThrow(b.bet(11, 6, { value: 100, from: better1 }));
-      expectThrow(b.bet(11, 0, { value: 100, from: better1 }));
-      expectThrow(b.bet(1500, 2, { value: 100, from: better1 }));
+      await expectThrow(b.bet(0, 10, { value: 100, from: better1 }));
+      await expectThrow(b.bet(10, 2, { value: 100, from: better1 }));
+      await expectThrow(b.bet(11, 6, { value: 100, from: better1 }));
+      await expectThrow(b.bet(11, 0, { value: 100, from: better1 }));
+      await expectThrow(b.bet(1500, 2, { value: 100, from: better1 }));
     });
 
     it('accounts boxStakesByUser correctly', async () => {
@@ -78,17 +79,17 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
     it('doesnt allow betting after game time', async () => {
       await b.setTime(GAME_TIME);
-      expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
+      await expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
 
       await b.setTime(GAME_TIME + ONE_DAY);
-      expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
+      await expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
 
       await b.setTime(GAME_TIME - 1);
       await b.bet(0, 7, { value: 10, from: better1 });
     });
 
     it('errors with 0 value', async () => {
-      expectThrow(b.bet(5, 2, { value: 0, from: better1 }));
+      await expectThrow(b.bet(5, 2, { value: 0, from: better1 }));
     });
 
     it('calculates fees correctly', async () => {
@@ -159,12 +160,12 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
     it('may only be called by the owner', async () => {
       await b.setTime(GAME_TIME + ONE_DAY);
-      expectThrow(b.reportWinner(1, 5, { from: better1 }));
+      await expectThrow(b.reportWinner(1, 5, { from: better1 }));
     });
 
     it('may only be called after the game', async () => {
       await b.setTime(GAME_TIME - ONE_DAY);
-      expectThrow(b.reportWinner(1, 5, { from: owner }));
+      await expectThrow(b.reportWinner(1, 5, { from: owner }));
     });
 
     it('may only be called 4 times', async () => {
@@ -174,7 +175,7 @@ contract('Boxes', ([ owner, ...betters ]) => {
         await b.reportWinner(1, 5, { from: owner });
       }
 
-      expectThrow(b.reportWinner(1, 5, { from: owner }));
+      await expectThrow(b.reportWinner(1, 5, { from: owner }));
     });
 
     it('accounts boxQuartersWon correctly', async () => {
@@ -200,22 +201,93 @@ contract('Boxes', ([ owner, ...betters ]) => {
     it('must be called on a valid box', async () => {
       await b.setTime(GAME_TIME + ONE_DAY);
 
-      expectThrow(b.reportWinner(0, 11, { from: owner }));
-      expectThrow(b.reportWinner(5, 12, { from: owner }));
-      expectThrow(b.reportWinner(12, 0, { from: owner }));
-      expectThrow(b.reportWinner(16, 4, { from: owner }));
+      await expectThrow(b.reportWinner(0, 11, { from: owner }));
+      await expectThrow(b.reportWinner(5, 12, { from: owner }));
+      await expectThrow(b.reportWinner(12, 0, { from: owner }));
+      await expectThrow(b.reportWinner(10, 4, { from: owner }));
+      await expectThrow(b.reportWinner(3, 10, { from: owner }));
     });
   });
 
 
   describe('#collectWinnings', () => {
-    it('can only be called if all quarters are reported');
-    it('can only be called on a valid box');
-    it('can only be called once per address and winning box');
-    it('can be called on behalf of any winner');
+    let b;
 
-    describe('payout calculation', () => {
-      it('calculates the correct payouts');
+    beforeEach(async () => {
+      b = await MockedTimeBoxes.new(owner, { from: owner });
+      await b.setTime(GAME_TIME - ONE_DAY);
+
+      // set up some bets for our tests
+      await b.bet(1, 6, { from: better1, value: 200 });
+      await b.bet(1, 6, { from: better1, value: 100 });
+      await b.bet(4, 9, { from: better2, value: 300 });
+      await b.bet(3, 7, { from: better3, value: 100 });
+      await b.bet(2, 9, { from: better3, value: 250 });
+      await b.bet(4, 9, { from: better4, value: 400 });
+
+      await b.setTime(GAME_TIME + ONE_DAY);
     });
+
+    it('can only be called if all quarters are reported', async () => {
+      // none reported
+      await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
+
+      // 1 reported
+      await b.reportWinner(1, 6, { from: owner });
+      await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
+
+      // 2 reported
+      await b.reportWinner(2, 4, { from: owner });
+      await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
+
+      // 3 reported
+      await b.reportWinner(3, 9, { from: owner });
+      await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
+
+      // 4 reported, now they can collect
+      await b.reportWinner(1, 8, { from: owner });
+      await b.collectWinnings(1, 6, { from: better1 });
+    });
+
+    describe('after all quarters reported', async () => {
+      beforeEach(async () => {
+        // no winners
+        await b.reportWinner(3, 8, { from: owner });
+        // 1 winner, whole stake
+        await b.reportWinner(1, 6, { from: owner });
+        // two wins & two betters
+        await b.reportWinner(4, 9, { from: owner });
+        await b.reportWinner(4, 9, { from: owner });
+      });
+
+      it('can only be called on a valid box', async () => {
+        await expectThrow(b.collectWinnings(1, 10, { from: better1 }));
+        await expectThrow(b.collectWinnings(10, 3, { from: better1 }));
+        await expectThrow(b.collectWinnings(16, 4, { from: better1 }));
+      });
+
+      it('can only be called on boxes that are won', async () => {
+        // no winners
+        await expectThrow(b.collectWinnings(3, 8, { from: better1 }));
+        // didn't win
+        await expectThrow(b.collectWinnings(4, 9, { from: better1 }));
+      });
+
+      it('can only be called once per address and winning box', async () => {
+        await b.collectWinnings(1, 6, { from: better1 });
+
+        await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
+      });
+
+      it('can be called on behalf of someone else', async () => {
+        await b.sendWinningsTo(better1, 1, 6, { from: owner });
+      });
+
+
+      describe('payout calculation', () => {
+        it('calculates the correct payouts');
+      });
+    });
+
   });
 });
