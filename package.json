@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/etherboxes/contracts#readme",
   "devDependencies": {
-    "truffle": "^4.0.4",
-    "zeppelin-solidity": "^1.5.0"
+    "truffle": "4.0.4",
+    "truffle-hdwallet-provider": "0.0.3",
+    "zeppelin-solidity": "1.5.0"
   }
 }
