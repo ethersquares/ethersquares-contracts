@@ -3,7 +3,7 @@ pragma solidity 0.4.18;
 import './Boxes.sol';
 
 contract MockedTimeBoxes is Boxes {
-    function MockedTimeBoxes(address _payee) Boxes(_payee) {}
+    function MockedTimeBoxes(address _payee) Boxes(_payee) public {}
 
     uint public time;
 
