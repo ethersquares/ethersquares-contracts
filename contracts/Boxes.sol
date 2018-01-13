@@ -16,10 +16,10 @@ contract Boxes is Ownable {
     uint public constant FEE_PERCENTAGE = 5;
 
     // staked ether for each player and each box
-    mapping(address => uint[][]) public boxStakesByUser;
+    mapping(address => uint[10][10]) public boxStakesByUser;
 
     // total stakes for each box
-    uint[][] public totalBoxStakes;
+    uint[10][10] public totalBoxStakes;
 
     // the overall total of money stakes in the grid
     uint totalStakes;
@@ -28,7 +28,7 @@ contract Boxes is Ownable {
     uint public collectedFees;
 
     // how many times each box wins
-    uint[][] public boxQuartersWon;
+    uint[10][10] public boxQuartersWon;
 
     // whether all quarters have been reported
     uint quartersReported = 0;
@@ -37,6 +37,10 @@ contract Boxes is Ownable {
         require(home >= 0 && home < 10);
         require(away >= 0 && away < 10);
         _;
+    }
+
+    function currentTime() view public returns (uint) {
+        return now;
     }
 
     // withdraw the fees collected by the contract
@@ -62,7 +66,7 @@ contract Boxes is Ownable {
 
     function bet(uint home, uint away) public payable isValidBox(home, away) {
         require(msg.value > 0);
-        require(now < GAME_START_TIME);
+        require(currentTime() < GAME_START_TIME);
 
         // account for the collected fees
         uint fee = msg.value.mul(FEE_PERCENTAGE).div(100);
