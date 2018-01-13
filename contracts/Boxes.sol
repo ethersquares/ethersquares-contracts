@@ -19,6 +19,7 @@ contract Boxes is Ownable {
         payee = _payee;
     }
 
+    // the recipient of collected fees
     address public payee;
 
     // staked ether for each player and each box
