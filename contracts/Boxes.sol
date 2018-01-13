@@ -15,6 +15,12 @@ contract Boxes is Ownable {
     // the percentage fee collected on each bet
     uint public constant FEE_PERCENTAGE = 5;
 
+    function Boxes(address _payee) public {
+        payee = _payee;
+    }
+
+    address public payee;
+
     // staked ether for each player and each box
     mapping(address => uint[10][10]) public boxStakesByUser;
 
@@ -59,7 +65,7 @@ contract Boxes is Ownable {
 
         // collect the fee
         uint fee = msg.value.mul(FEE_PERCENTAGE).div(100);
-        owner.transfer(fee);
+        payee.transfer(fee);
 
         // the amount staked is what's left over
         uint stake = msg.value.sub(fee);

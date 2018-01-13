@@ -1,0 +1,11 @@
+const Splitter = artifacts.require('Splitter');
+
+const MOODY_WALLET = '0x9A404278CfD489d9B175E4cF18dfAC7eb6770BB9';
+
+// TODO: REPLACE THESE
+const NOAH_WALLET = '0x0000000000000000000000000000000000000000';
+const JOSH_WALLET = '0x0000000000000000000000000000000000000000';
+
+module.exports = function (deployer) {
+  deployer.deploy(Splitter, [ MOODY_WALLET, NOAH_WALLET, JOSH_WALLET ]);
+};

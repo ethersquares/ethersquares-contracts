@@ -28,7 +28,7 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
     beforeEach(
       async () => {
-        b = await MockedTimeBoxes.new({ from: owner });
+        b = await MockedTimeBoxes.new(owner, { from: owner });
 
         // betting is on
         await b.setTime(GAME_TIME - ONE_DAY);
