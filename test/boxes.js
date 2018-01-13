@@ -286,8 +286,9 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
       describe('payout calculation', () => {
         it('works for single winner payout', async () => {
-          const { logs: [ { args: { winner, winnings } } ] } = await b.collectWinnings(1, 6, { from: better1 });
+          const { logs: [ { event, args: { winner, winnings } } ] } = await b.collectWinnings(1, 6, { from: better1 });
 
+          assert.strictEqual(event, 'LogPayout');
           assert.strictEqual(winner, better1);
           // 1 quarter of the take, total 1350, minus fees, 5%
           assert.strictEqual(winnings.valueOf(), '320');
@@ -295,16 +296,18 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
         it('works for multiple winner payout', async () => {
           {
-            const { logs: [ { args: { winner, winnings } } ] } = await b.collectWinnings(4, 9, { from: better2 });
+            const { logs: [ { event, args: { winner, winnings } } ] } = await b.collectWinnings(4, 9, { from: better2 });
 
+            assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better2);
             // 1 quarter of the take * 3/7 of the take, total 1350, minus fees, 5%, 2 quarters won
             assert.strictEqual(winnings.valueOf(), '274');
           }
 
           {
-            const { logs: [ { args: { winner, winnings } } ] } = await b.collectWinnings(4, 9, { from: better4 });
+            const { logs: [ { event, args: { winner, winnings } } ] } = await b.collectWinnings(4, 9, { from: better4 });
 
+            assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better4);
             // 1 quarter of the take * 4/7 of the take, total 1350, minus fees, 5%, 2 quarters won
             assert.strictEqual(winnings.valueOf(), '366');
