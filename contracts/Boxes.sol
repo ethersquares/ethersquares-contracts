@@ -10,7 +10,7 @@ contract Boxes is Ownable {
     uint public constant GAME_START_TIME = 1517743800;
 
     // the number of quarters
-    uint public constant NUM_QUARTERS = 4;
+    uint8 public constant NUM_QUARTERS = 4;
 
     // the percentage fee collected on each bet
     uint public constant FEE_PERCENTAGE = 5;
@@ -32,10 +32,10 @@ contract Boxes is Ownable {
     uint public totalStakes;
 
     // how many times each box wins
-    uint[10][10] public boxQuartersWon;
+    uint8[10][10] public boxQuartersWon;
 
     // whether all quarters have been reported
-    uint quartersReported = 0;
+    uint8 quartersReported = 0;
 
     modifier isValidBox(uint home, uint away) {
         require(home >= 0 && home < 10);
@@ -84,7 +84,7 @@ contract Boxes is Ownable {
         LogBet(msg.sender, home, away, stake, fee);
     }
 
-    event LogPayout(address indexed winner, uint amount);
+    event LogPayout(address indexed winner, uint winnings);
 
     // called by the winners to collect winnings for a box
     function collectWinnings(uint home, uint away) public isValidBox(home, away) {
