@@ -24,9 +24,6 @@ contract Boxes is Ownable {
     // the overall total of money stakes in the grid
     uint public totalStakes;
 
-    // the fees owed to the contract owner
-    uint public collectedFees;
-
     // how many times each box wins
     uint[10][10] public boxQuartersWon;
 
@@ -43,14 +40,6 @@ contract Boxes is Ownable {
         return now;
     }
 
-    // withdraw the fees collected by the contract
-    function withdraw() public onlyOwner {
-        require(collectedFees > 0);
-        uint amt = collectedFees;
-        collectedFees = 0;
-        msg.sender.transfer(amt);
-    }
-
     function reportWinner(uint home, uint away) public onlyOwner isValidBox(home, away) {
         // can only report 4 quarters
         require(quartersReported < NUM_QUARTERS);
@@ -62,15 +51,15 @@ contract Boxes is Ownable {
         boxQuartersWon[home][away]++;
     }
 
-    event LogBet(address indexed better, uint indexed home, uint indexed away, uint amount);
+    event LogBet(address indexed better, uint indexed home, uint indexed away, uint stake, uint fee);
 
     function bet(uint home, uint away) public payable isValidBox(home, away) {
         require(msg.value > 0);
         require(currentTime() < GAME_START_TIME);
 
-        // account for the collected fees
+        // collect the fee
         uint fee = msg.value.mul(FEE_PERCENTAGE).div(100);
-        collectedFees = collectedFees.add(fee);
+        owner.transfer(fee);
 
         // the amount staked is what's left over
         uint stake = msg.value.sub(fee);
@@ -84,7 +73,7 @@ contract Boxes is Ownable {
         // add it to the total stakes as well
         totalBoxStakes[home][away] = totalBoxStakes[home][away].add(stake);
 
-        LogBet(msg.sender, home, away, stake);
+        LogBet(msg.sender, home, away, stake, fee);
     }
 
     event LogPayout(address indexed winner, uint amount);

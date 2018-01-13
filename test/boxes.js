@@ -59,7 +59,7 @@ contract('Boxes', ([ owner, ...betters ]) => {
     });
 
     it('emits a correct event', async () => {
-      const { logs: [ { event, args: { better, home, away, amount } } ] } = await b.bet(0, 7, {
+      const { logs: [ { event, args: { better, home, away, stake } } ] } = await b.bet(0, 7, {
         value: 10,
         from: better1
       });
@@ -68,7 +68,7 @@ contract('Boxes', ([ owner, ...betters ]) => {
       assert.strictEqual(better, better1);
       assert.strictEqual(home.valueOf(), '0');
       assert.strictEqual(away.valueOf(), '7');
-      assert.strictEqual(amount.valueOf(), '10');
+      assert.strictEqual(stake.valueOf(), '10');
     });
 
     it('doesnt allow betting after game time', async () => {
@@ -88,19 +88,13 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
     it('calculates fees correctly', async () => {
       for (let bet = 100; bet < 100 * Math.pow(2, 10); bet *= 2) {
-        const collectedFees = await b.collectedFees();
-
-        const { logs: [ { args: { better, home, away, amount } } ] } =
+        const { logs: [ { args: { better, home, away, stake, fee } } ] } =
           await b.bet(4, 4, { value: bet, from: better1 });
 
-        const collectedFeesAfter = await b.collectedFees();
-
-        const betFee = collectedFeesAfter.sub(collectedFees);
-
         // the bet fee is 5%
-        assert.strictEqual(betFee.valueOf(), '' + (bet * 0.05));
+        assert.strictEqual(fee.valueOf(), '' + (bet * 0.05));
         // the amount bet is 95%
-        assert.strictEqual(amount.valueOf(), '' + bet * 0.95);
+        assert.strictEqual(stake.valueOf(), '' + bet * 0.95);
       }
     });
 
