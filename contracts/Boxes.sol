@@ -50,6 +50,7 @@ contract Boxes is Ownable {
     function reportWinner(uint home, uint away) public onlyOwner isValidBox(home, away) {
         // can only report 4 quarters
         require(quartersReported < NUM_QUARTERS);
+        require(currentTime() > GAME_START_TIME);
 
         // count a quarter reported
         quartersReported++;

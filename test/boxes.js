@@ -151,10 +151,60 @@ contract('Boxes', ([ owner, ...betters ]) => {
   });
 
   describe('#reportWinner', () => {
-    it('may only be called by the owner');
-    it('may only be called 4 times');
-    it('accounts boxQuartersWon correctly');
-    it('must be called on a valid box');
+    let b;
+
+    beforeEach(async () => {
+      b = await MockedTimeBoxes.new(owner, { from: owner });
+    });
+
+    it('may only be called by the owner', async () => {
+      await b.setTime(GAME_TIME + ONE_DAY);
+      expectThrow(b.reportWinner(1, 5, { from: better1 }));
+    });
+
+    it('may only be called after the game', async () => {
+      await b.setTime(GAME_TIME - ONE_DAY);
+      expectThrow(b.reportWinner(1, 5, { from: owner }));
+    });
+
+    it('may only be called 4 times', async () => {
+      await b.setTime(GAME_TIME + ONE_DAY);
+
+      for (let i = 0; i < 4; i++) {
+        await b.reportWinner(1, 5, { from: owner });
+      }
+
+      expectThrow(b.reportWinner(1, 5, { from: owner }));
+    });
+
+    it('accounts boxQuartersWon correctly', async () => {
+      await b.setTime(GAME_TIME + ONE_DAY);
+
+      const before = await b.boxQuartersWon(1, 5);
+      assert.strictEqual(before.valueOf(), '0');
+
+      await b.reportWinner(1, 5, { from: owner });
+      const after = await b.boxQuartersWon(1, 5);
+      assert.strictEqual(after.valueOf(), '1');
+
+
+      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '0');
+      await b.reportWinner(4, 2, { from: owner });
+      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '1');
+
+      await b.reportWinner(4, 2, { from: owner });
+      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '2');
+    });
+
+
+    it('must be called on a valid box', async () => {
+      await b.setTime(GAME_TIME + ONE_DAY);
+
+      expectThrow(b.reportWinner(0, 11, { from: owner }));
+      expectThrow(b.reportWinner(5, 12, { from: owner }));
+      expectThrow(b.reportWinner(12, 0, { from: owner }));
+      expectThrow(b.reportWinner(16, 4, { from: owner }));
+    });
   });
 
 
