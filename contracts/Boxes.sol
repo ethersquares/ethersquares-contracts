@@ -22,7 +22,7 @@ contract Boxes is Ownable {
     uint[10][10] public totalBoxStakes;
 
     // the overall total of money stakes in the grid
-    uint totalStakes;
+    uint public totalStakes;
 
     // the fees owed to the contract owner
     uint public collectedFees;

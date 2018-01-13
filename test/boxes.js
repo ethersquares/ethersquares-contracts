@@ -97,8 +97,44 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
         const betFee = collectedFeesAfter.sub(collectedFees);
 
+        // the bet fee is 5%
         assert.strictEqual(betFee.valueOf(), '' + (bet * 0.05));
+        // the amount bet is 95%
+        assert.strictEqual(amount.valueOf(), '' + bet * 0.95);
       }
+    });
+
+    it('accounts the totalStakes properly', async () => {
+      await b.bet(1, 2, { value: 100, from: better1 });
+      await b.bet(2, 6, { value: 40, from: better2 });
+      await b.bet(1, 2, { value: 90, from: better3 });
+
+      assert.strictEqual((await b.totalStakes()).valueOf(), '' + (95 + 38 + 86));
+    });
+
+    it('accounts the boxStakesByUser properly', async () => {
+      await b.bet(1, 2, { value: 100, from: better2 });
+      await b.bet(2, 6, { value: 40, from: better2 });
+      await b.bet(1, 2, { value: 90, from: better2 });
+      // different better on 1,2
+      await b.bet(1, 2, { value: 90, from: better3 });
+
+      assert.strictEqual((await b.boxStakesByUser(better2, 1, 2)).valueOf(), '' + (95 + 86));
+      assert.strictEqual((await b.boxStakesByUser(better2, 2, 6)).valueOf(), '' + (38));
+      assert.strictEqual((await b.boxStakesByUser(better3, 1, 2)).valueOf(), '' + (86));
+      assert.strictEqual((await b.boxStakesByUser(better3, 2, 6)).valueOf(), '0');
+    });
+
+
+    it('accounts the totalBoxStakes properly', async () => {
+      await b.bet(1, 2, { value: 100, from: better2 });
+      await b.bet(2, 6, { value: 40, from: better2 });
+      await b.bet(1, 2, { value: 90, from: better2 });
+      // different better on 1,2
+      await b.bet(1, 2, { value: 40, from: better3 });
+
+      assert.strictEqual((await b.totalBoxStakes(1, 2)).valueOf(), '' + (95 + 86 + 38));
+      assert.strictEqual((await b.totalBoxStakes(2, 6)).valueOf(), '' + (38));
     });
 
   });
