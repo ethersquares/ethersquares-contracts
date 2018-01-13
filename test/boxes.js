@@ -149,4 +149,22 @@ contract('Boxes', ([ owner, ...betters ]) => {
     });
 
   });
+
+  describe('#reportWinner', () => {
+    it('may only be called by the owner');
+    it('may only be called 4 times');
+    it('accounts boxQuartersWon correctly');
+    it('must be called on a valid box');
+  });
+
+
+  describe('#collectWinnings', () => {
+    it('can only be called if all quarters are reported');
+    it('can only be called on a valid box');
+    it('can only be called once per address and winning box');
+
+    describe('payout calculation', () => {
+      it('calculates the correct payouts');
+    });
+  });
 });
