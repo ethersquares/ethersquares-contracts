@@ -22,7 +22,7 @@ contract('Splitter', ([ funder, ...payees ]) => {
   });
 
   it('must have at least 1 payee to be deployed', async () => {
-    expectThrow(Splitter.new([], { from: payees }));
+    expectThrow(Splitter.new([], { from: funder }));
   });
 
   describe('#payout', () => {
