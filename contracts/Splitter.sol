@@ -26,4 +26,6 @@ contract Splitter is ReentrancyGuard {
             between[i].transfer(split + (i == 0 ? leftover : 0));
         }
     }
+
+    function () payable public {}
 }
