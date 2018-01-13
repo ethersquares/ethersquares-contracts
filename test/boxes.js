@@ -1,6 +1,7 @@
 const Boxes = artifacts.require('Boxes');
 const MockedTimeBoxes = artifacts.require('MockedTimeBoxes');
 const expectThrow = require('./util/expectThrow');
+const getBalance = require('./util/getBalance');
 
 const GAME_TIME = 1517743800;
 const ONE_DAY = 86400;
@@ -16,6 +17,10 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
   it('is deployed', async () => {
     assert.strictEqual(typeof boxes.address, 'string');
+  });
+  it('is owned by the owner', async () => {
+    const ownedBy = await boxes.owner();
+    assert.strictEqual(ownedBy, owner);
   });
 
   describe('#bet', () => {
@@ -119,7 +124,6 @@ contract('Boxes', ([ owner, ...betters ]) => {
       assert.strictEqual((await b.boxStakesByUser(better3, 2, 6)).valueOf(), '0');
     });
 
-
     it('accounts the totalBoxStakes properly', async () => {
       await b.bet(1, 2, { value: 100, from: better2 });
       await b.bet(2, 6, { value: 40, from: better2 });
@@ -129,6 +133,19 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
       assert.strictEqual((await b.totalBoxStakes(1, 2)).valueOf(), '' + (95 + 86 + 38));
       assert.strictEqual((await b.totalBoxStakes(2, 6)).valueOf(), '' + (38));
+    });
+
+    it('transfers collected fees to the owner', async () => {
+      const balBefore = await getBalance(owner);
+
+      const { logs: [ { args: { fee } } ] } = await b.bet(1, 2, { value: 100, from: better1 });
+
+      const balAfter = await getBalance(owner);
+
+      const feesCollected = balAfter.sub(balBefore);
+
+      assert.strictEqual(feesCollected.valueOf(), '5');
+      assert.strictEqual(feesCollected.valueOf(), fee.valueOf());
     });
 
   });
