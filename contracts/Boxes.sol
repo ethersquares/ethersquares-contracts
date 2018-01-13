@@ -96,7 +96,7 @@ contract Boxes is Ownable {
         uint stake = boxStakesByUser[msg.sender][home][away];
         uint boxStake = totalBoxStakes[home][away];
 
-        uint winnings = stake.mul(totalStakes).mul(boxQuartersWon[home][away]).div(boxStake);
+        uint winnings = stake.mul(totalStakes).mul(boxQuartersWon[home][away]).div(NUM_QUARTERS).div(boxStake);
 
         // clear their stakes - can only collect once
         boxStakesByUser[msg.sender][home][away] = 0;
