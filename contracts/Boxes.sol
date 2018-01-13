@@ -78,20 +78,25 @@ contract Boxes is Ownable {
 
     event LogPayout(address indexed winner, uint amount);
 
-    // called by the winners to collect winnings for a box, only after the game is over
+    // called by the winners to collect winnings for a box
     function collectWinnings(uint home, uint away) public isValidBox(home, away) {
+        collectWinnings(msg.sender, home, away);
+    }
+
+    // called by anyone to send winnings for a address box, only after all the quarters are reported
+    function collectWinnings(address winner, uint home, uint away) public isValidBox(home, away) {
         require(quartersReported == NUM_QUARTERS);
 
-        uint stake = boxStakesByUser[msg.sender][home][away];
+        uint stake = boxStakesByUser[winner][home][away];
         uint boxStake = totalBoxStakes[home][away];
 
         uint winnings = stake.mul(totalStakes).mul(boxQuartersWon[home][away]).div(NUM_QUARTERS).div(boxStake);
 
         // clear their stakes - can only collect once
-        boxStakesByUser[msg.sender][home][away] = 0;
+        boxStakesByUser[winner][home][away] = 0;
 
-        msg.sender.transfer(winnings);
+        winner.transfer(winnings);
 
-        LogPayout(msg.sender, winnings);
+        LogPayout(winner, winnings);
     }
 }
