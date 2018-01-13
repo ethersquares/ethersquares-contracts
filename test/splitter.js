@@ -26,8 +26,8 @@ contract('Splitter', ([ funder, ...payees ]) => {
   });
 
   describe('#payout', () => {
-    for (let numPayees = 1; numPayees < payees.length; numPayees++) {
-      for (let amt = 1; amt < 1000; amt *= 2) {
+    for (let numPayees = 1; numPayees < 5; numPayees++) {
+      for (let amt of [ 1000, 5000, 10000 ]) {
         describe(`splits ${amt} correctly between ${numPayees} payees`, () => {
           let s;
 
