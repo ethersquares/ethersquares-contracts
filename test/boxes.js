@@ -35,14 +35,30 @@ contract('Boxes', ([ owner, ...betters ]) => {
       assert.strictEqual(time.valueOf(), '1517743800');
     });
 
+    it('allows betting on all valid boxes', async () => {
+      for (let home = 0; home < 10; home++) {
+        for (let away = 0; away < 10; away++) {
+          // we alternate betters just for the sake of more test coverage
+          await b.bet(home, away, { value: 100, from: betters[ (home + away) % betters.length ] });
+        }
+      }
+    });
+
+    it('disallows betting on invalid boxes', async () => {
+      expectThrow(b.bet(0, 10, { value: 100, from: better1 }));
+      expectThrow(b.bet(11, 6, { value: 100, from: better1 }));
+      expectThrow(b.bet(11, 0, { value: 100, from: better1 }));
+      expectThrow(b.bet(1500, 2, { value: 100, from: better1 }));
+    });
+
     it('accounts boxStakesByUser correctly', async () => {
-      const bet = await b.bet(3, 4, { value: 100, from: better1 });
+      await b.bet(3, 4, { value: 100, from: better1 });
 
       const boxStakeByUser = await b.boxStakesByUser(better1, 3, 4);
       assert.strictEqual(boxStakeByUser.valueOf(), '95');
     });
 
-    it('fires a correct event', async () => {
+    it('emits a correct event', async () => {
       const { logs: [ { event, args: { better, home, away, amount } } ] } = await b.bet(0, 7, {
         value: 10,
         from: better1
@@ -66,6 +82,24 @@ contract('Boxes', ([ owner, ...betters ]) => {
       await b.bet(0, 7, { value: 10, from: better1 });
     });
 
+    it('errors with 0 value', async () => {
+      expectThrow(b.bet(5, 2, { value: 0, from: better1 }));
+    });
+
+    it('calculates fees correctly', async () => {
+      for (let bet = 100; bet < 100 * Math.pow(2, 10); bet *= 2) {
+        const collectedFees = await b.collectedFees();
+
+        const { logs: [ { args: { better, home, away, amount } } ] } =
+          await b.bet(4, 4, { value: bet, from: better1 });
+
+        const collectedFeesAfter = await b.collectedFees();
+
+        const betFee = collectedFeesAfter.sub(collectedFees);
+
+        assert.strictEqual(betFee.valueOf(), '' + (bet * 0.05));
+      }
+    });
 
   });
 });
