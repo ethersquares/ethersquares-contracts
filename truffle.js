@@ -6,7 +6,8 @@ module.exports = {
       provider: function () {
         return new HDWalletProvider(process.env.MNEMONIC_KOVAN, `https://kovan.infura.io/${process.env.INFURA_API_KEY}`);
       },
-      network_id: '42' // Match any network id
+      network_id: '42', // Match any network id
+      gasPrice: 100
     },
     mainnet: {
       provider: function () {

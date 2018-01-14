@@ -2,22 +2,24 @@ pragma solidity 0.4.18;
 
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import './interfaces/IScoreOracle.sol';
+import './KnowsBoxes.sol';
+import './KnowsConstants.sol';
+import './KnowsTime.sol';
 
-contract Boxes is Ownable {
+contract Boxes is KnowsConstants, KnowsTime, KnowsBoxes {
     using SafeMath for uint;
-
-    // 2/4/18 @ 6:30 PM EST, the deadline for bets
-    uint public constant GAME_START_TIME = 1517743800;
-
-    // the number of quarters
-    uint8 public constant NUM_QUARTERS = 4;
 
     // the percentage fee collected on each bet
     uint public constant FEE_PERCENTAGE = 5;
 
-    function Boxes(address _payee) public {
+    function Boxes(IScoreOracle _oracle, address _payee) public {
         payee = _payee;
+        oracle = _oracle;
     }
+
+    // the oracle for the scores
+    IScoreOracle public oracle;
 
     // the recipient of collected fees
     address public payee;
@@ -30,34 +32,6 @@ contract Boxes is Ownable {
 
     // the overall total of money stakes in the grid
     uint public totalStakes;
-
-    // how many times each box wins
-    uint8[10][10] public boxQuartersWon;
-
-    // whether all quarters have been reported
-    uint8 quartersReported = 0;
-
-    modifier isValidBox(uint home, uint away) {
-        require(home >= 0 && home < 10);
-        require(away >= 0 && away < 10);
-        _;
-    }
-
-    function currentTime() view public returns (uint) {
-        return now;
-    }
-
-    function reportWinner(uint home, uint away) public onlyOwner isValidBox(home, away) {
-        // can only report 4 quarters
-        require(quartersReported < NUM_QUARTERS);
-        require(currentTime() > GAME_START_TIME);
-
-        // count a quarter reported
-        quartersReported++;
-
-        // that box won
-        boxQuartersWon[home][away]++;
-    }
 
     event LogBet(address indexed better, uint indexed home, uint indexed away, uint stake, uint fee);
 
@@ -93,12 +67,16 @@ contract Boxes is Ownable {
 
     // called by anyone to send winnings for a address box, only after all the quarters are reported
     function sendWinningsTo(address winner, uint home, uint away) public isValidBox(home, away) {
-        require(quartersReported == NUM_QUARTERS);
+        // score must be finalized
+        require(oracle.isFinalized());
 
-        uint stake = boxStakesByUser[winner][home][away];
+        // the box wins and the total wins are used to calculate the percentage of the total stake that the box is worth
+        var (boxWins, totalWins) = oracle.getBoxWins(home, away);
+
+        uint userStake = boxStakesByUser[winner][home][away];
         uint boxStake = totalBoxStakes[home][away];
 
-        uint winnings = stake.mul(totalStakes).mul(boxQuartersWon[home][away]).div(NUM_QUARTERS).div(boxStake);
+        uint winnings = userStake.mul(totalStakes).mul(boxWins).div(totalWins).div(boxStake);
 
         require(winnings > 0);
 

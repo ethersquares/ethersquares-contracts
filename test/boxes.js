@@ -1,9 +1,10 @@
 const Boxes = artifacts.require('Boxes');
 const MockedTimeBoxes = artifacts.require('MockedTimeBoxes');
+const MockedTimeOwnedScoreOracle = artifacts.require('MockedTimeOwnedScoreOracle');
 const expectThrow = require('./util/expectThrow');
 const getBalance = require('./util/getBalance');
 
-const GAME_TIME = 1517743800;
+const GAME_TIME = 1517787000;
 const ONE_DAY = 86400;
 
 contract('Boxes', ([ owner, ...betters ]) => {
@@ -18,27 +19,26 @@ contract('Boxes', ([ owner, ...betters ]) => {
   it('is deployed', async () => {
     assert.strictEqual(typeof boxes.address, 'string');
   });
-  it('is owned by the owner', async () => {
-    const ownedBy = await boxes.owner();
-    assert.strictEqual(ownedBy, owner);
-  });
+
+  async function createOracle(time = GAME_TIME + ONE_DAY) {
+    const oracle = await MockedTimeOwnedScoreOracle.new({ from: owner });
+    await oracle.setTime(time);
+    return oracle;
+  }
 
   describe('#bet', () => {
-    let b;
+    let b, oracle;
 
     beforeEach(
       async () => {
-        b = await MockedTimeBoxes.new(owner, { from: owner });
+        oracle = await createOracle();
+
+        b = await MockedTimeBoxes.new(oracle.address, owner, { from: owner });
 
         // betting is on
         await b.setTime(GAME_TIME - ONE_DAY);
       }
     );
-
-    it('has the correct GAME_START_TIME', async () => {
-      const time = await b.GAME_START_TIME();
-      assert.strictEqual(time.valueOf(), '1517743800');
-    });
 
     it('allows betting on all valid boxes', async () => {
       for (let home = 0; home < 10; home++) {
@@ -151,70 +151,12 @@ contract('Boxes', ([ owner, ...betters ]) => {
 
   });
 
-  describe('#reportWinner', () => {
-    let b;
-
-    beforeEach(async () => {
-      b = await MockedTimeBoxes.new(owner, { from: owner });
-    });
-
-    it('may only be called by the owner', async () => {
-      await b.setTime(GAME_TIME + ONE_DAY);
-      await expectThrow(b.reportWinner(1, 5, { from: better1 }));
-    });
-
-    it('may only be called after the game', async () => {
-      await b.setTime(GAME_TIME - ONE_DAY);
-      await expectThrow(b.reportWinner(1, 5, { from: owner }));
-    });
-
-    it('may only be called 4 times', async () => {
-      await b.setTime(GAME_TIME + ONE_DAY);
-
-      for (let i = 0; i < 4; i++) {
-        await b.reportWinner(1, 5, { from: owner });
-      }
-
-      await expectThrow(b.reportWinner(1, 5, { from: owner }));
-    });
-
-    it('accounts boxQuartersWon correctly', async () => {
-      await b.setTime(GAME_TIME + ONE_DAY);
-
-      const before = await b.boxQuartersWon(1, 5);
-      assert.strictEqual(before.valueOf(), '0');
-
-      await b.reportWinner(1, 5, { from: owner });
-      const after = await b.boxQuartersWon(1, 5);
-      assert.strictEqual(after.valueOf(), '1');
-
-
-      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '0');
-      await b.reportWinner(4, 2, { from: owner });
-      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '1');
-
-      await b.reportWinner(4, 2, { from: owner });
-      assert.strictEqual((await b.boxQuartersWon(4, 2)).valueOf(), '2');
-    });
-
-
-    it('must be called on a valid box', async () => {
-      await b.setTime(GAME_TIME + ONE_DAY);
-
-      await expectThrow(b.reportWinner(0, 11, { from: owner }));
-      await expectThrow(b.reportWinner(5, 12, { from: owner }));
-      await expectThrow(b.reportWinner(12, 0, { from: owner }));
-      await expectThrow(b.reportWinner(10, 4, { from: owner }));
-      await expectThrow(b.reportWinner(3, 10, { from: owner }));
-    });
-  });
-
-
   describe('#collectWinnings', () => {
-    let b;
+    let b, oracle;
 
     beforeEach(async () => {
-      b = await MockedTimeBoxes.new(owner, { from: owner });
+      oracle = await createOracle();
+      b = await MockedTimeBoxes.new(oracle.address, owner, { from: owner });
       await b.setTime(GAME_TIME - ONE_DAY);
 
       // set up some bets for our tests
@@ -233,31 +175,31 @@ contract('Boxes', ([ owner, ...betters ]) => {
       await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
 
       // 1 reported
-      await b.reportWinner(1, 6, { from: owner });
+      await oracle.reportWinner(1, 6, { from: owner });
       await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
 
       // 2 reported
-      await b.reportWinner(2, 4, { from: owner });
+      await oracle.reportWinner(2, 4, { from: owner });
       await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
 
       // 3 reported
-      await b.reportWinner(3, 9, { from: owner });
+      await oracle.reportWinner(3, 9, { from: owner });
       await expectThrow(b.collectWinnings(1, 6, { from: better1 }));
 
       // 4 reported, now they can collect
-      await b.reportWinner(1, 8, { from: owner });
+      await oracle.reportWinner(1, 8, { from: owner });
       await b.collectWinnings(1, 6, { from: better1 });
     });
 
     describe('after all quarters reported', async () => {
       beforeEach(async () => {
         // no winners
-        await b.reportWinner(3, 8, { from: owner });
+        await oracle.reportWinner(3, 8, { from: owner });
         // 1 winner, whole stake
-        await b.reportWinner(1, 6, { from: owner });
+        await oracle.reportWinner(1, 6, { from: owner });
         // two wins & two betters
-        await b.reportWinner(4, 9, { from: owner });
-        await b.reportWinner(4, 9, { from: owner });
+        await oracle.reportWinner(4, 9, { from: owner });
+        await oracle.reportWinner(4, 9, { from: owner });
       });
 
       it('can only be called on a valid box', async () => {
