@@ -34,8 +34,22 @@ contract('AcceptedScoreOracle', ([ owner, ...others ]) => {
     assert.strictEqual((await acceptedScoreOracle.VOTING_PERIOD_DURATION()).valueOf(), '' + VOTING_PERIOD_DURATION);
   });
 
-  describe('#setVoterStakeContract', async () => {
-    it('may only be called once');
+  describe('#setVoterStakesContract', async () => {
+    let aso;
+
+    beforeEach(async () => {
+      aso = await AcceptedScoreOracle.new({ from: owner });
+    });
+
+    it('may only be called once', async () => {
+      await aso.setVoterStakesContract(others[ 0 ], { from: owner });
+      await expectThrow(aso.setVoterStakesContract(others[ 0 ], { from: owner }));
+    });
+
+    it('may not be called by anyone other than the owner', async () => {
+      await expectThrow(aso.setVoterStakesContract(others[ 0 ], { from: others[ 0 ] }));
+      await expectThrow(aso.setVoterStakesContract(others[ 0 ], { from: others[ 1 ] }));
+    });
   });
 
   describe('#finalize', async () => {
