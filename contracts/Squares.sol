@@ -3,11 +3,12 @@ pragma solidity 0.4.18;
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './interfaces/IScoreOracle.sol';
+import './interfaces/IKnowsVoterStakes.sol';
 import './KnowsSquares.sol';
 import './KnowsConstants.sol';
 import './KnowsTime.sol';
 
-contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
+contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
     using SafeMath for uint;
 
     function Squares(IScoreOracle _oracle) public {
@@ -81,5 +82,9 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
         winner.transfer(winnings);
 
         LogPayout(winner, winnings);
+    }
+
+    function getVoterStakes(address voter) public view returns (uint) {
+        return totalUserStakes[voter];
     }
 }

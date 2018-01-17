@@ -1,6 +1,7 @@
 pragma solidity 0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import './interfaces/IKnowsVoterStakes.sol';
 import './OwnedScoreOracle.sol';
 
 contract AcceptedScoreOracle is OwnedScoreOracle {
@@ -17,6 +18,14 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
 
     uint public affirmations;
     uint public totalVotes;
+
+    IKnowsVoterStakes public voterStakes;
+
+    // only once, the voter stakes can be set by the owner, to allow us to deploy a circular dependency
+    function setVoterStakesContract(IKnowsVoterStakes _voterStakes) public onlyOwner {
+        require(address(voterStakes) == address(0));
+        voterStakes = _voterStakes;
+    }
 
     // start the acceptance period
     function finalize() public onlyOwner {
@@ -42,7 +51,7 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         require(!accepted);
 
         // require 66.66% majority of voters affirmed the score
-        require(affirmations.mul(10000).div(totalVotes) > 6666);
+        require(affirmations.mul(10000).div(totalVotes) >= 6666);
 
         // score is accepted as truth
         accepted = true;
@@ -62,6 +71,9 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
 
         // and the voting period for the score has ended
         require(currentTime() > votingPeriodStartTime + VOTING_PERIOD_DURATION);
+
+        // require 66.66% majority of voters affirmed the score
+        require(affirmations.mul(10000).div(totalVotes) < 6666);
 
         // score is no longer finalized
         finalized = false;

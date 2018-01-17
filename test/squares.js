@@ -26,6 +26,10 @@ contract('Squares', ([ owner, ...betters ]) => {
     return oracle;
   }
 
+  describe('#getVoterStakes', () => {
+    it('returns the total amount of wei a person has staked');
+  });
+
   describe('#bet', () => {
     let sq, oracle;
 
