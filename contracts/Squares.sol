@@ -18,10 +18,10 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
     IScoreOracle public oracle;
 
     // staked ether for each player and each box
-    mapping(address => uint[10][10]) public boxStakesByUser;
+    mapping(address => uint[10][10]) public totalSquareStakesByUser;
 
     // total stakes for each box
-    uint[10][10] public totalBoxStakes;
+    uint[10][10] public totalSquareStakes;
 
     // the total stakes for each user
     mapping(address => uint) public totalUserStakes;
@@ -45,10 +45,10 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
         totalUserStakes[msg.sender] = totalUserStakes[msg.sender].add(stake);
 
         // add their stake to their own accounting
-        boxStakesByUser[msg.sender][home][away] = boxStakesByUser[msg.sender][home][away].add(stake);
+        totalSquareStakesByUser[msg.sender][home][away] = totalSquareStakesByUser[msg.sender][home][away].add(stake);
 
         // add it to the total stakes as well
-        totalBoxStakes[home][away] = totalBoxStakes[home][away].add(stake);
+        totalSquareStakes[home][away] = totalSquareStakes[home][away].add(stake);
 
         LogBet(msg.sender, home, away, stake);
     }
@@ -65,18 +65,18 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
         // score must be finalized
         require(oracle.isFinalized());
 
-        // the box wins and the total wins are used to calculate the percentage of the total stake that the box is worth
-        var (boxWins, totalWins) = oracle.getBoxWins(home, away);
+        // the square wins and the total wins are used to calculate the percentage of the total stake that the square is worth
+        var (numSquareWins, totalWins) = oracle.getSquareWins(home, away);
 
-        uint userStake = boxStakesByUser[winner][home][away];
-        uint boxStake = totalBoxStakes[home][away];
+        uint userStake = totalSquareStakesByUser[winner][home][away];
+        uint squareStake = totalSquareStakes[home][away];
 
-        uint winnings = userStake.mul(totalStakes).mul(boxWins).div(totalWins).div(boxStake);
+        uint winnings = userStake.mul(totalStakes).mul(numSquareWins).div(totalWins).div(squareStake);
 
         require(winnings > 0);
 
         // clear their stakes - can only collect once
-        boxStakesByUser[winner][home][away] = 0;
+        totalSquareStakesByUser[winner][home][away] = 0;
 
         winner.transfer(winnings);
 

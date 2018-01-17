@@ -27,16 +27,16 @@ contract('Squares', ([ owner, ...betters ]) => {
   }
 
   describe('#bet', () => {
-    let b, oracle;
+    let sq, oracle;
 
     beforeEach(
       async () => {
         oracle = await createOracle();
 
-        b = await MockedTimeSquares.new(oracle.address, { from: owner });
+        sq = await MockedTimeSquares.new(oracle.address, { from: owner });
 
         // betting is on
-        await b.setTime(GAME_TIME - ONE_DAY);
+        await sq.setTime(GAME_TIME - ONE_DAY);
       }
     );
 
@@ -44,28 +44,28 @@ contract('Squares', ([ owner, ...betters ]) => {
       for (let home = 0; home < 10; home++) {
         for (let away = 0; away < 10; away++) {
           // we alternate betters just for the sake of more test coverage
-          await b.bet(home, away, { value: 100, from: betters[ (home + away) % betters.length ] });
+          await sq.bet(home, away, { value: 100, from: betters[ (home + away) % betters.length ] });
         }
       }
     });
 
     it('disallows betting on invalid squares', async () => {
-      await expectThrow(b.bet(0, 10, { value: 100, from: better1 }));
-      await expectThrow(b.bet(10, 2, { value: 100, from: better1 }));
-      await expectThrow(b.bet(11, 6, { value: 100, from: better1 }));
-      await expectThrow(b.bet(11, 0, { value: 100, from: better1 }));
-      await expectThrow(b.bet(1500, 2, { value: 100, from: better1 }));
+      await expectThrow(sq.bet(0, 10, { value: 100, from: better1 }));
+      await expectThrow(sq.bet(10, 2, { value: 100, from: better1 }));
+      await expectThrow(sq.bet(11, 6, { value: 100, from: better1 }));
+      await expectThrow(sq.bet(11, 0, { value: 100, from: better1 }));
+      await expectThrow(sq.bet(1500, 2, { value: 100, from: better1 }));
     });
 
-    it('accounts boxStakesByUser correctly', async () => {
-      await b.bet(3, 4, { value: 100, from: better1 });
+    it('accounts totalSquareStakesByUser correctly', async () => {
+      await sq.bet(3, 4, { value: 100, from: better1 });
 
-      const boxStakeByUser = await b.boxStakesByUser(better1, 3, 4);
-      assert.strictEqual(boxStakeByUser.valueOf(), '100');
+      const stakes = await sq.totalSquareStakesByUser(better1, 3, 4);
+      assert.strictEqual(stakes.valueOf(), '100');
     });
 
     it('emits a correct event', async () => {
-      const { logs: [ { event, args: { better, home, away, stake } } ] } = await b.bet(0, 7, {
+      const { logs: [ { event, args: { better, home, away, stake } } ] } = await sq.bet(0, 7, {
         value: 10,
         from: better1
       });
@@ -78,59 +78,59 @@ contract('Squares', ([ owner, ...betters ]) => {
     });
 
     it('doesnt allow betting after game time', async () => {
-      await b.setTime(GAME_TIME);
-      await expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
+      await sq.setTime(GAME_TIME);
+      await expectThrow(sq.bet(0, 7, { value: 10, from: better1 }));
 
-      await b.setTime(GAME_TIME + ONE_DAY);
-      await expectThrow(b.bet(0, 7, { value: 10, from: better1 }));
+      await sq.setTime(GAME_TIME + ONE_DAY);
+      await expectThrow(sq.bet(0, 7, { value: 10, from: better1 }));
 
-      await b.setTime(GAME_TIME - 1);
-      await b.bet(0, 7, { value: 10, from: better1 });
+      await sq.setTime(GAME_TIME - 1);
+      await sq.bet(0, 7, { value: 10, from: better1 });
     });
 
     it('errors with 0 value', async () => {
-      await expectThrow(b.bet(5, 2, { value: 0, from: better1 }));
+      await expectThrow(sq.bet(5, 2, { value: 0, from: better1 }));
     });
 
     it('accounts total user stakes properly', async () => {
-      await b.bet(1, 2, { value: 100, from: better1 });
-      await b.bet(5, 8, { value: 200, from: better1 });
-      await b.bet(1, 2, { value: 90, from: better3 });
+      await sq.bet(1, 2, { value: 100, from: better1 });
+      await sq.bet(5, 8, { value: 200, from: better1 });
+      await sq.bet(1, 2, { value: 90, from: better3 });
 
-      assert.strictEqual((await b.totalUserStakes(better1)).valueOf(), '' + (300));
-      assert.strictEqual((await b.totalUserStakes(better3)).valueOf(), '' + (90));
+      assert.strictEqual((await sq.totalUserStakes(better1)).valueOf(), '' + (300));
+      assert.strictEqual((await sq.totalUserStakes(better3)).valueOf(), '' + (90));
     });
 
     it('accounts the totalStakes properly', async () => {
-      await b.bet(1, 2, { value: 100, from: better1 });
-      await b.bet(2, 6, { value: 40, from: better2 });
-      await b.bet(1, 2, { value: 90, from: better3 });
+      await sq.bet(1, 2, { value: 100, from: better1 });
+      await sq.bet(2, 6, { value: 40, from: better2 });
+      await sq.bet(1, 2, { value: 90, from: better3 });
 
-      assert.strictEqual((await b.totalStakes()).valueOf(), '' + (100 + 40 + 90));
+      assert.strictEqual((await sq.totalStakes()).valueOf(), '' + (100 + 40 + 90));
     });
 
-    it('accounts the boxStakesByUser properly', async () => {
-      await b.bet(1, 2, { value: 100, from: better2 });
-      await b.bet(2, 6, { value: 40, from: better2 });
-      await b.bet(1, 2, { value: 90, from: better2 });
+    it('accounts the totalSquareStakesByUser properly', async () => {
+      await sq.bet(1, 2, { value: 100, from: better2 });
+      await sq.bet(2, 6, { value: 40, from: better2 });
+      await sq.bet(1, 2, { value: 90, from: better2 });
       // different better on 1,2
-      await b.bet(1, 2, { value: 90, from: better3 });
+      await sq.bet(1, 2, { value: 90, from: better3 });
 
-      assert.strictEqual((await b.boxStakesByUser(better2, 1, 2)).valueOf(), '' + (100 + 90));
-      assert.strictEqual((await b.boxStakesByUser(better2, 2, 6)).valueOf(), '' + (40));
-      assert.strictEqual((await b.boxStakesByUser(better3, 1, 2)).valueOf(), '' + (90));
-      assert.strictEqual((await b.boxStakesByUser(better3, 2, 6)).valueOf(), '0');
+      assert.strictEqual((await sq.totalSquareStakesByUser(better2, 1, 2)).valueOf(), '' + (100 + 90));
+      assert.strictEqual((await sq.totalSquareStakesByUser(better2, 2, 6)).valueOf(), '' + (40));
+      assert.strictEqual((await sq.totalSquareStakesByUser(better3, 1, 2)).valueOf(), '' + (90));
+      assert.strictEqual((await sq.totalSquareStakesByUser(better3, 2, 6)).valueOf(), '0');
     });
 
-    it('accounts the totalBoxStakes properly', async () => {
-      await b.bet(1, 2, { value: 100, from: better2 });
-      await b.bet(2, 6, { value: 40, from: better2 });
-      await b.bet(1, 2, { value: 90, from: better2 });
+    it('accounts the totalSquareStakes properly', async () => {
+      await sq.bet(1, 2, { value: 100, from: better2 });
+      await sq.bet(2, 6, { value: 40, from: better2 });
+      await sq.bet(1, 2, { value: 90, from: better2 });
       // different better on 1,2
-      await b.bet(1, 2, { value: 40, from: better3 });
+      await sq.bet(1, 2, { value: 40, from: better3 });
 
-      assert.strictEqual((await b.totalBoxStakes(1, 2)).valueOf(), '' + (100 + 90 + 40));
-      assert.strictEqual((await b.totalBoxStakes(2, 6)).valueOf(), '' + (40));
+      assert.strictEqual((await sq.totalSquareStakes(1, 2)).valueOf(), '' + (100 + 90 + 40));
+      assert.strictEqual((await sq.totalSquareStakes(2, 6)).valueOf(), '' + (40));
     });
   });
 
@@ -153,36 +153,33 @@ contract('Squares', ([ owner, ...betters ]) => {
       await sq.setTime(GAME_TIME + ONE_DAY);
     });
 
-    it('can only be called if all quarters are reported', async () => {
+    it('can only be called if oracle score is finalized', async () => {
       // none reported
       await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
 
-      // 1 reported
-      await oracle.reportWinner(1, 6, { from: owner });
+      await oracle.setSquareWins(1, 6, 1, { from: owner });
+      await oracle.setSquareWins(2, 4, 1, { from: owner });
+      await oracle.setSquareWins(3, 9, 1, { from: owner });
+      await oracle.setSquareWins(1, 8, 1, { from: owner });
+
+      // all reported
       await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
 
-      // 2 reported
-      await oracle.reportWinner(2, 4, { from: owner });
-      await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
+      await oracle.finalize({ from: owner });
 
-      // 3 reported
-      await oracle.reportWinner(3, 9, { from: owner });
-      await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
-
-      // 4 reported, now they can collect
-      await oracle.reportWinner(1, 8, { from: owner });
+      // finalized
       await sq.collectWinnings(1, 6, { from: better1 });
     });
 
     describe('after all quarters reported', async () => {
       beforeEach(async () => {
         // no winners
-        await oracle.reportWinner(3, 8, { from: owner });
+        await oracle.setSquareWins(3, 8, 1, { from: owner });
         // 1 winner, whole stake
-        await oracle.reportWinner(1, 6, { from: owner });
+        await oracle.setSquareWins(1, 6, 1, { from: owner });
         // two wins & two betters
-        await oracle.reportWinner(4, 9, { from: owner });
-        await oracle.reportWinner(4, 9, { from: owner });
+        await oracle.setSquareWins(4, 9, 2, { from: owner });
+        await oracle.finalize({ from: owner });
       });
 
       it('can only be called on a valid box', async () => {
