@@ -10,30 +10,30 @@ const ONE_DAY = 86400;
 const VOTING_PERIOD_DURATION = ONE_DAY * 7;
 
 contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ...others ]) => {
-  let acceptedScoreOracle, mockVoterStakes;
+  let deployedAso, mockVoterStakes;
 
   before(async () => {
-    acceptedScoreOracle = await AcceptedScoreOracle.deployed();
+    deployedAso = await AcceptedScoreOracle.deployed();
     mockVoterStakes = await MockKnowsVoterStakes.new([ better1, better2, better3, better4 ], [ 1, 2, 3, 4 ], { from: owner });
   });
 
   it('is deployed', async () => {
-    assert.strictEqual(typeof acceptedScoreOracle.address, 'string');
+    assert.strictEqual(typeof deployedAso.address, 'string');
   });
 
   it('is owned by the owner', async () => {
-    const ownedBy = await acceptedScoreOracle.owner();
+    const ownedBy = await deployedAso.owner();
     assert.strictEqual(ownedBy, owner);
   });
 
   it('points at the squares contract', async () => {
-    const voterStakes = await acceptedScoreOracle.voterStakes();
+    const voterStakes = await deployedAso.voterStakes();
     const squares = await Squares.deployed();
     assert.strictEqual(voterStakes, squares.address);
   });
 
   it('voting period duration is 7 days', async () => {
-    assert.strictEqual((await acceptedScoreOracle.VOTING_PERIOD_DURATION()).valueOf(), '' + VOTING_PERIOD_DURATION);
+    assert.strictEqual((await deployedAso.VOTING_PERIOD_DURATION()).valueOf(), '' + VOTING_PERIOD_DURATION);
   });
 
   describe('#setVoterStakesContract', async () => {
@@ -207,26 +207,102 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
       await aso.setVoterStakesContract(mockVoterStakes.address, { from: owner });
     });
 
-    async function advanceTime(by = VOTING_PERIOD_DURATION) {
-      const time = await aso.time();
-      await aso.setTime(time.plus(by));
-    }
-
     it('requires the score to be finalized', async () => {
       await expectThrow(aso.accept());
     });
 
     describe('post-finalize', () => {
+      let votingPeriodStartTime;
       beforeEach(async () => {
         // finalize the score
         await aso.finalize({ from: owner });
+        votingPeriodStartTime = await aso.votingPeriodStartTime();
+
+        const time = await aso.time();
+        assert.strictEqual(votingPeriodStartTime.valueOf(), time.valueOf());
       });
 
       it('requires voters to have voted', async () => {
+        await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1));
+        await expectThrow(aso.accept({ from: others[ 1 ] }));
 
+        await aso.vote(true, { from: better1 });
+        assert.strictEqual((await aso.totalVotes()).valueOf(), '1');
+        assert.strictEqual((await aso.affirmations()).valueOf(), '1');
+
+        await aso.accept({ from: others[ 1 ] });
       });
-      it('requires the voting period duration to have been met');
-      it('fires a log event LogAccepted(uint time)');
+
+      it('requires the voting period duration to have been met', async () => {
+        await aso.vote(true, { from: better1 });
+        await expectThrow(aso.accept({ from: others[ 1 ] }));
+
+        await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).sub(1));
+        await expectThrow(aso.accept({ from: others[ 1 ] }));
+
+        await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1));
+        await aso.accept({ from: others[ 1 ] });
+      });
+
+      describe('requires a 2/3rds majority of voters', () => {
+        beforeEach(async () => {
+          await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1));
+        });
+
+        it('fails for 1/3', async () => {
+          await aso.vote(true, { from: better1 });
+          await aso.vote(false, { from: better2 });
+          await expectThrow(aso.accept({ from: others[ 0 ] }));
+        });
+
+        it('fails for 3/5', async () => {
+          await aso.vote(false, { from: better1 });
+          await aso.vote(false, { from: better2 });
+          await aso.vote(true, { from: better3 });
+          await expectThrow(aso.accept({ from: others[ 0 ] }));
+        });
+
+        it('fails for 4/7', async () => {
+          await aso.vote(false, { from: better1 });
+          await aso.vote(false, { from: better2 });
+          await aso.vote(true, { from: better4 });
+          await expectThrow(aso.accept({ from: others[ 0 ] }));
+        });
+
+        it('succeeds for 2/3', async () => {
+          await aso.vote(false, { from: better1 });
+          await aso.vote(true, { from: better2 });
+          await aso.accept({ from: others[ 0 ] });
+        });
+
+        it('succeeds for 3/4', async () => {
+          await aso.vote(false, { from: better1 });
+          await aso.vote(true, { from: better3 });
+          await aso.accept({ from: others[ 0 ] });
+        });
+
+        it('succeeds if unaninmous', async () => {
+          await aso.vote(true, { from: better1 });
+          await aso.vote(true, { from: better3 });
+          await aso.accept({ from: others[ 0 ] });
+        });
+      });
+
+      it('cannot be called twice', async () => {
+        await aso.vote(true, { from: better1 });
+        await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1));
+
+        await aso.accept({ from: others[ 1 ] });
+        await expectThrow(aso.accept({ from: others[ 1 ] }));
+      });
+
+      it('fires a log event LogAccepted(uint time)', async () => {
+        await aso.vote(true, { from: better1 });
+        await aso.setTime(votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1));
+
+        const { logs: [ { args: { time } } ] } = await aso.accept({ from: others[ 1 ] });
+        assert.strictEqual(time.valueOf(), votingPeriodStartTime.plus(VOTING_PERIOD_DURATION).plus(1).valueOf());
+      });
     });
   });
 

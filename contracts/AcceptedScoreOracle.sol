@@ -61,8 +61,8 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         // score is not already accepted as truth
         require(!accepted);
 
-        // require 66.66% majority of voters affirmed the score
-        require(affirmations.mul(10000).div(totalVotes) >= 6666);
+        // require 66.666% majority of voters affirmed the score
+        require(affirmations.mul(100000).div(totalVotes) >= 66666);
 
         // score is accepted as truth
         accepted = true;
