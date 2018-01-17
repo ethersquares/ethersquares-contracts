@@ -30,6 +30,10 @@ contract('AcceptedScoreOracle', ([ owner, ...others ]) => {
     assert.strictEqual(voterStakes, squares.address);
   });
 
+  it('voting period duration is 7 days', async () => {
+    assert.strictEqual((await acceptedScoreOracle.VOTING_PERIOD_DURATION()).valueOf(), '' + VOTING_PERIOD_DURATION);
+  });
+
   describe('#setVoterStakeContract', async () => {
     it('may only be called once');
   });
