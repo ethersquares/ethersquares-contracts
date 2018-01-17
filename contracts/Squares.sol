@@ -2,6 +2,7 @@ pragma solidity 0.4.18;
 
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import 'zeppelin-solidity/contracts/math/Math.sol';
 import './interfaces/IScoreOracle.sol';
 import './interfaces/IKnowsVoterStakes.sol';
 import './KnowsSquares.sol';
@@ -60,6 +61,19 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
 
     event LogPayout(address indexed winner, uint payout, uint donation);
 
+    // calculate the winnings owed for a user's bet on a particular square
+    function getWinnings(address user, uint home, uint away) public view returns (uint winnings) {
+        // the square wins and the total wins are used to calculate
+        // the percentage of the total stake that the square is worth
+        var (numSquareWins, totalWins) = oracle.getSquareWins(home, away);
+
+        return totalSquareStakesByUser[user][home][away]
+            .mul(totalStakes)
+            .mul(numSquareWins)
+            .div(totalWins)
+            .div(totalSquareStakes[home][away]);
+    }
+
     // called by the winners to collect winnings for a box
     function collectWinnings(uint home, uint away, uint donationPercentage) public isValidSquare(home, away) {
         // score must be finalized
@@ -68,13 +82,11 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
         // optional donation
         require(donationPercentage <= 100);
 
-        // the square wins and the total wins are used to calculate the percentage of the total stake that the square is worth
-        var (numSquareWins, totalWins) = oracle.getSquareWins(home, away);
-
-        uint userStake = totalSquareStakesByUser[msg.sender][home][away];
-        uint squareStake = totalSquareStakes[home][away];
-
-        uint winnings = userStake.mul(totalStakes).mul(numSquareWins).div(totalWins).div(squareStake);
+        // we cannot pay out more than we have
+        // but we should not prevent paying out what we do have
+        // this should never happen since integer math always truncates, we should only end up with too much
+        // however it's worth writing in the protection
+        uint winnings = Math.min256(this.balance, getWinnings(msg.sender, home, away));
 
         require(winnings > 0);
 

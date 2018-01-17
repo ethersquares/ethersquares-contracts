@@ -177,6 +177,7 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
       await sq.bet(3, 7, { from: better3, value: 100 });
       await sq.bet(2, 9, { from: better3, value: 250 });
       await sq.bet(4, 9, { from: better4, value: 400 });
+      await sq.bet(3, 8, { from: better1, value: 1 });
 
       await sq.setTime(GAME_TIME + ONE_DAY);
     });
@@ -208,6 +209,19 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
         // two wins & two betters
         await oracle.setSquareWins(4, 9, 2, { from: owner });
         await oracle.finalize({ from: owner });
+      });
+
+      it.only('everyone can collect their all winnings and balance just has ether dust', async () => {
+        const balBefore = await getBalance(sq.address);
+        assert.strictEqual(balBefore.valueOf(), '1351');
+
+        await sq.collectWinnings(1, 6, 0, { from: better1 });
+        await sq.collectWinnings(4, 9, 2, { from: better2 });
+        await sq.collectWinnings(4, 9, 5, { from: better4 });
+        await sq.collectWinnings(3, 8, 7, { from: better1 });
+
+        const balAfter = await getBalance(sq.address);
+        assert.strictEqual(balAfter.valueOf(), '2');
       });
 
       it('sends the payout to the winner, donation to developer', async () => {
@@ -249,7 +263,7 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
 
           assert.strictEqual(event, 'LogPayout');
           assert.strictEqual(winner, better1);
-          // 1 quarter of the take, total 1350
+          // 1 quarter of the take, total 1351
           assert.strictEqual(payout.valueOf(), '337');
         });
 
@@ -259,7 +273,7 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
 
             assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better2);
-            // 1 quarter of the take * 3/7 of the take, total 1350, 2 quarters won
+            // 1 quarter of the take * 3/7 of the take, total 1351, 2 quarters won
             assert.strictEqual(payout.valueOf(), '289');
           }
 
@@ -268,8 +282,8 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
 
             assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better4);
-            // 1 quarter of the take * 4/7 of the take, total 1350, 2 quarters won
-            assert.strictEqual(payout.valueOf(), '385');
+            // 1 quarter of the take * 4/7 of the take, total 1351, 2 quarters won
+            assert.strictEqual(payout.valueOf(), '386');
           }
         });
 
