@@ -84,7 +84,7 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
         LogPayout(winner, winnings);
     }
 
-    function getVoterStakes(address voter) public view returns (uint) {
+    function getVoterStakes(address voter, uint asOfBlock) public view returns (uint) {
         return totalUserStakes[voter];
     }
 }

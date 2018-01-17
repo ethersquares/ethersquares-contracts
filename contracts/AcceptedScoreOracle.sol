@@ -12,12 +12,22 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
 
     // when the voting period started
     uint public votingPeriodStartTime;
+    // the block number when the voting period started
+    uint public votingPeriodBlockNumber;
 
     // whether the voters have accepted the score as true
     bool public accepted;
 
     uint public affirmations;
     uint public totalVotes;
+
+    struct Vote {
+        bool affirmed;
+        bool counted;
+    }
+
+    // for the voting period blcok number, these are the votes counted from each address
+    mapping(uint => mapping(address => Vote)) votes;
 
     IKnowsVoterStakes public voterStakes;
 
@@ -35,6 +45,7 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         votingPeriodStartTime = currentTime();
         affirmations = 0;
         totalVotes = 0;
+        votingPeriodBlockNumber = block.number;
     }
 
     event LogAccepted(uint time);
@@ -61,7 +72,7 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
 
     event LogUnfinalized(uint time);
 
-    // called when the score is finalized but the public does not accept it
+    // called when the voting period ends with a minority
     function unfinalize() public {
         // score is finalized
         require(finalized);
@@ -72,13 +83,49 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         // and the voting period for the score has ended
         require(currentTime() > votingPeriodStartTime + VOTING_PERIOD_DURATION);
 
-        // require 66.66% majority of voters affirmed the score
+        // require people to have
         require(affirmations.mul(10000).div(totalVotes) < 6666);
 
         // score is no longer finalized
         finalized = false;
 
         LogUnfinalized(currentTime());
+    }
+
+    // vote to affirm or unaffirm the score called by a user that has some stake
+    function vote(bool affirm) public {
+        // the voting period has started
+        require(votingPeriodStartTime != 0);
+
+        // the score is finalized
+        require(finalized);
+
+        // the score is not accepted
+        require(!accepted);
+
+        uint stake = voterStakes.getVoterStakes(msg.sender, votingPeriodBlockNumber);
+
+        // user has some stake
+        require(stake > 0);
+
+        Vote storage userVote = votes[votingPeriodBlockNumber][msg.sender];
+
+        // vote has not been counted, so
+        if (!userVote.counted) {
+            userVote.counted = true;
+            totalVotes = totalVotes.add(stake);
+            if (affirm) {
+                affirmations = affirmations.add(stake);
+            }
+        } else {
+            // changing their vote to an affirmation
+            if (affirm && !userVote.affirmed) {
+                affirmations = affirmations.add(stake);
+            } else if (!affirm && userVote.affirmed) {
+                // changing their vote to a disaffirmation
+                affirmations = affirmations.sub(stake);
+            }
+        }
     }
 
     function isFinalized() public view returns (bool) {

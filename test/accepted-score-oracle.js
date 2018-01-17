@@ -64,10 +64,12 @@ contract('AcceptedScoreOracle', ([ owner, ...others ]) => {
 
   describe('#vote', async () => {
     it('requires the address to have stake');
-    it('increments affirmations by user stake');
-    it('increments totalVotes by user stake');
+    it('increments affirmations by user\'s stake');
+    it('increments totalVotes by user\'s stake');
     it('only is allowed if the voting period is started');
     it('is allowed even after the voting period duration has lapsed');
+    it('only affects the count for the current voting period');
+    it('allows a user to change their vote and counts it correctly');
   });
 
   describe('#isFinalized', () => {
