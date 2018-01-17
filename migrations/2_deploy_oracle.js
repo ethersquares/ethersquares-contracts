@@ -1,5 +1,5 @@
-const OwnedScoreOracle = artifacts.require('OwnedScoreOracle');
+const AcceptedScoreOracle = artifacts.require('AcceptedScoreOracle');
 
 module.exports = function (deployer) {
-  deployer.deploy(OwnedScoreOracle);
+  deployer.deploy(AcceptedScoreOracle);
 };

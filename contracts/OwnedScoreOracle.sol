@@ -30,7 +30,7 @@ contract OwnedScoreOracle is KnowsConstants, KnowsSquares, KnowsTime, Ownable, I
     function setSquareWins(uint home, uint away, uint wins) public onlyOwner isValidSquare(home, away) {
         require(currentTime() >= SCORE_REPORT_START_TIME);
         require(wins <= TOTAL_WINS);
-        require(!isFinalized());
+        require(!finalized);
 
         uint currentSquareWins = squareWins[home][away];
 

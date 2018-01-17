@@ -9,21 +9,6 @@ const ONE_DAY = 86400;
 contract('OwnedScoreOracle', ([ owner, ...others ]) => {
   const [ account1, account2, account3, account4 ] = others;
 
-  let ownedScoreOracle;
-
-  before(async () => {
-    ownedScoreOracle = await OwnedScoreOracle.deployed();
-  });
-
-  it('is deployed', async () => {
-    assert.strictEqual(typeof ownedScoreOracle.address, 'string');
-  });
-
-  it('is owned by the owner', async () => {
-    const ownedBy = await ownedScoreOracle.owner();
-    assert.strictEqual(ownedBy, owner);
-  });
-
   describe('#SCORE_REPORT_START_TIME', () => {
     let scoreReportStartTime, gameTime;
 

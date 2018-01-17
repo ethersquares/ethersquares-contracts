@@ -1,6 +1,6 @@
 const Squares = artifacts.require('Squares');
-const OwnedScoreOracle = artifacts.require('OwnedScoreOracle');
+const AcceptedScoreOracle = artifacts.require('AcceptedScoreOracle');
 
 module.exports = function (deployer) {
-  deployer.deploy(Squares, OwnedScoreOracle.address);
+  deployer.deploy(Squares, AcceptedScoreOracle.address);
 };
