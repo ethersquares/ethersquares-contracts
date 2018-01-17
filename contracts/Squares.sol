@@ -3,26 +3,19 @@ pragma solidity 0.4.18;
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './interfaces/IScoreOracle.sol';
-import './KnowsBoxes.sol';
+import './KnowsSquares.sol';
 import './KnowsConstants.sol';
 import './KnowsTime.sol';
 
-contract Boxes is KnowsConstants, KnowsTime, KnowsBoxes {
+contract Squares is KnowsConstants, KnowsTime, KnowsSquares {
     using SafeMath for uint;
 
-    // the percentage fee collected on each bet
-    uint public constant FEE_PERCENTAGE = 5;
-
-    function Boxes(IScoreOracle _oracle, address _payee) public {
-        payee = _payee;
+    function Squares(IScoreOracle _oracle) public {
         oracle = _oracle;
     }
 
     // the oracle for the scores
     IScoreOracle public oracle;
-
-    // the recipient of collected fees
-    address public payee;
 
     // staked ether for each player and each box
     mapping(address => uint[10][10]) public boxStakesByUser;
@@ -30,24 +23,26 @@ contract Boxes is KnowsConstants, KnowsTime, KnowsBoxes {
     // total stakes for each box
     uint[10][10] public totalBoxStakes;
 
+    // the total stakes for each user
+    mapping(address => uint) public totalUserStakes;
+
     // the overall total of money stakes in the grid
     uint public totalStakes;
 
-    event LogBet(address indexed better, uint indexed home, uint indexed away, uint stake, uint fee);
+    event LogBet(address indexed better, uint indexed home, uint indexed away, uint stake);
 
-    function bet(uint home, uint away) public payable isValidBox(home, away) {
+    function bet(uint home, uint away) public payable isValidSquare(home, away) {
         require(msg.value > 0);
         require(currentTime() < GAME_START_TIME);
 
-        // collect the fee
-        uint fee = msg.value.mul(FEE_PERCENTAGE).div(100);
-        payee.transfer(fee);
-
-        // the amount staked is what's left over
-        uint stake = msg.value.sub(fee);
+        // the stake is the message value
+        uint stake = msg.value;
 
         // add the stake amount to the overall total
         totalStakes = totalStakes.add(stake);
+
+        // add their stake to the total user stakes
+        totalUserStakes[msg.sender] = totalUserStakes[msg.sender].add(stake);
 
         // add their stake to their own accounting
         boxStakesByUser[msg.sender][home][away] = boxStakesByUser[msg.sender][home][away].add(stake);
@@ -55,18 +50,18 @@ contract Boxes is KnowsConstants, KnowsTime, KnowsBoxes {
         // add it to the total stakes as well
         totalBoxStakes[home][away] = totalBoxStakes[home][away].add(stake);
 
-        LogBet(msg.sender, home, away, stake, fee);
+        LogBet(msg.sender, home, away, stake);
     }
 
     event LogPayout(address indexed winner, uint winnings);
 
     // called by the winners to collect winnings for a box
-    function collectWinnings(uint home, uint away) public isValidBox(home, away) {
+    function collectWinnings(uint home, uint away) public isValidSquare(home, away) {
         sendWinningsTo(msg.sender, home, away);
     }
 
     // called by anyone to send winnings for a address box, only after all the quarters are reported
-    function sendWinningsTo(address winner, uint home, uint away) public isValidBox(home, away) {
+    function sendWinningsTo(address winner, uint home, uint away) public isValidSquare(home, away) {
         // score must be finalized
         require(oracle.isFinalized());
 

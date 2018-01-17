@@ -1,8 +1,8 @@
 {
-  "name": "etherboxes-contracts",
+  "name": "ethersquares-contracts",
   "private": true,
   "version": "1.0.0",
-  "description": "contracts for the etherboxes site",
+  "description": "contracts for the ethersquares site",
   "directories": {
     "test": "test"
   },
@@ -11,13 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etherboxes/contracts.git"
+    "url": "git+https://github.com/moodysalem/ethersquares-contracts.git"
   },
   "author": "Moody Salem",
   "bugs": {
-    "url": "https://github.com/etherboxes/contracts/issues"
+    "url": "https://github.com/moodysalem/ethersquares-contracts/issues"
   },
-  "homepage": "https://github.com/etherboxes/contracts#readme",
+  "homepage": "https://github.com/moodysalem/ethersquares-contracts#readme",
   "devDependencies": {
     "truffle": "4.0.4",
     "truffle-hdwallet-provider": "0.0.3",

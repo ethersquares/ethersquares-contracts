@@ -1,20 +1,20 @@
 pragma solidity 0.4.18;
 
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
-import './KnowsBoxes.sol';
+import './KnowsSquares.sol';
 import './KnowsTime.sol';
 import './KnowsConstants.sol';
 
-contract OwnedScoreOracle is KnowsConstants, KnowsBoxes, KnowsTime, Ownable {
+contract OwnedScoreOracle is KnowsConstants, KnowsSquares, KnowsTime, Ownable {
     // the number of quarters is the total number of wins
-    uint public constant NUM_QUARTERS = 4;
+    uint8 public constant NUM_QUARTERS = 4;
 
     // number of quarters that have been reported
-    uint public quartersReported = 0;
+    uint8 public quartersReported = 0;
 
-    uint[10][10] public boxQuartersWon;
+    uint8[10][10] public boxQuartersWon;
 
-    function reportWinner(uint home, uint away) public onlyOwner isValidBox(home, away) {
+    function reportWinner(uint home, uint away) public onlyOwner isValidSquare(home, away) {
         // can only report 4 quarters
         require(quartersReported < NUM_QUARTERS);
         require(currentTime() > GAME_START_TIME);
