@@ -7,7 +7,7 @@ const getBalance = require('./util/getBalance');
 const GAME_TIME = 1517787000;
 const ONE_DAY = 86400;
 
-contract('Squares', ([ owner, ...betters ]) => {
+contract('Squares', ([ owner, developer, ...betters ]) => {
   const [ better1, better2, better3, better4 ] = betters;
 
   let squares;
@@ -27,7 +27,31 @@ contract('Squares', ([ owner, ...betters ]) => {
   }
 
   describe('#getVoterStakes', () => {
-    it('returns the total amount of wei a person has staked');
+    let sq, oracle;
+    beforeEach(
+      async () => {
+        oracle = await createOracle();
+
+        sq = await MockedTimeSquares.new(oracle.address, developer, { from: owner });
+
+        // betting is on
+        await sq.setTime(GAME_TIME - ONE_DAY);
+      }
+    );
+
+    it('returns the total amount of wei a person has always', async () => {
+      assert.strictEqual((await sq.getVoterStakes(better1, 0)).valueOf(), '0');
+
+      await sq.bet(5, 0, { value: 100, from: better1 });
+      assert.strictEqual((await sq.getVoterStakes(better1, 0)).valueOf(), '100');
+
+      await sq.bet(2, 6, { value: 200, from: better1 });
+      assert.strictEqual((await sq.getVoterStakes(better1, 0)).valueOf(), '300');
+
+      await sq.bet(6, 9, { value: 300, from: better2 });
+      assert.strictEqual((await sq.getVoterStakes(better1, 0)).valueOf(), '300');
+      assert.strictEqual((await sq.getVoterStakes(better2, 0)).valueOf(), '300');
+    });
   });
 
   describe('#bet', () => {
@@ -37,7 +61,7 @@ contract('Squares', ([ owner, ...betters ]) => {
       async () => {
         oracle = await createOracle();
 
-        sq = await MockedTimeSquares.new(oracle.address, { from: owner });
+        sq = await MockedTimeSquares.new(oracle.address, developer, { from: owner });
 
         // betting is on
         await sq.setTime(GAME_TIME - ONE_DAY);
@@ -143,7 +167,7 @@ contract('Squares', ([ owner, ...betters ]) => {
 
     beforeEach(async () => {
       oracle = await createOracle();
-      sq = await MockedTimeSquares.new(oracle.address, { from: owner });
+      sq = await MockedTimeSquares.new(oracle.address, developer, { from: owner });
       await sq.setTime(GAME_TIME - ONE_DAY);
 
       // set up some bets for our tests
@@ -159,7 +183,7 @@ contract('Squares', ([ owner, ...betters ]) => {
 
     it('can only be called if oracle score is finalized', async () => {
       // none reported
-      await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
+      await expectThrow(sq.collectWinnings(1, 6, 0, { from: better1 }));
 
       await oracle.setSquareWins(1, 6, 1, { from: owner });
       await oracle.setSquareWins(2, 4, 1, { from: owner });
@@ -167,12 +191,12 @@ contract('Squares', ([ owner, ...betters ]) => {
       await oracle.setSquareWins(1, 8, 1, { from: owner });
 
       // all reported
-      await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
+      await expectThrow(sq.collectWinnings(1, 6, 0, { from: better1 }));
 
       await oracle.finalize({ from: owner });
 
       // finalized
-      await sq.collectWinnings(1, 6, { from: better1 });
+      await sq.collectWinnings(1, 6, 0, { from: better1 });
     });
 
     describe('after all quarters reported', async () => {
@@ -186,58 +210,95 @@ contract('Squares', ([ owner, ...betters ]) => {
         await oracle.finalize({ from: owner });
       });
 
+      it('sends the payout to the winner, donation to developer', async () => {
+        const balSender = await getBalance(better1);
+        const balDeveloper = await getBalance(developer);
+
+        const { receipt: { gasUsed }, logs: [ { args: { payout, donation } } ] } =
+          await sq.collectWinnings(1, 6, 5, { gasPrice: 1, from: better1 });
+
+        const balSenderAfter = await getBalance(better1);
+        const balDeveloperAfter = await getBalance(developer);
+
+        assert.strictEqual(balSenderAfter.sub(balSender).abs().valueOf(), payout.sub(gasUsed).abs().valueOf());
+        assert.strictEqual(balDeveloperAfter.sub(balDeveloper).valueOf(), donation.valueOf());
+      });
+
       it('can only be called on a valid box', async () => {
-        await expectThrow(sq.collectWinnings(1, 10, { from: better1 }));
-        await expectThrow(sq.collectWinnings(10, 3, { from: better1 }));
-        await expectThrow(sq.collectWinnings(16, 4, { from: better1 }));
+        await expectThrow(sq.collectWinnings(1, 10, 0, { from: better1 }));
+        await expectThrow(sq.collectWinnings(10, 3, 0, { from: better1 }));
+        await expectThrow(sq.collectWinnings(16, 4, 0, { from: better1 }));
       });
 
       it('can only be called on squares that are won', async () => {
         // no winners
-        await expectThrow(sq.collectWinnings(3, 8, { from: better1 }));
+        await expectThrow(sq.collectWinnings(3, 8, 0, { from: better1 }));
         // didn't win
-        await expectThrow(sq.collectWinnings(4, 9, { from: better1 }));
+        await expectThrow(sq.collectWinnings(4, 9, 0, { from: better1 }));
       });
 
       it('can only be called once per address and winning box', async () => {
-        await sq.collectWinnings(1, 6, { from: better1 });
+        await sq.collectWinnings(1, 6, 0, { from: better1 });
 
-        await expectThrow(sq.collectWinnings(1, 6, { from: better1 }));
+        await expectThrow(sq.collectWinnings(1, 6, 0, { from: better1 }));
       });
-
-      it('can be called on behalf of someone else', async () => {
-        await sq.sendWinningsTo(better1, 1, 6, { from: owner });
-      });
-
 
       describe('payout calculation', () => {
         it('works for single winner payout', async () => {
-          const { logs: [ { event, args: { winner, winnings } } ] } = await sq.collectWinnings(1, 6, { from: better1 });
+          const { logs: [ { event, args: { winner, payout } } ] } = await sq.collectWinnings(1, 6, 0, { from: better1 });
 
           assert.strictEqual(event, 'LogPayout');
           assert.strictEqual(winner, better1);
           // 1 quarter of the take, total 1350
-          assert.strictEqual(winnings.valueOf(), '337');
+          assert.strictEqual(payout.valueOf(), '337');
         });
 
         it('works for multiple winner payout', async () => {
           {
-            const { logs: [ { event, args: { winner, winnings } } ] } = await sq.collectWinnings(4, 9, { from: better2 });
+            const { logs: [ { event, args: { winner, payout } } ] } = await sq.collectWinnings(4, 9, 0, { from: better2 });
 
             assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better2);
             // 1 quarter of the take * 3/7 of the take, total 1350, 2 quarters won
-            assert.strictEqual(winnings.valueOf(), '289');
+            assert.strictEqual(payout.valueOf(), '289');
           }
 
           {
-            const { logs: [ { event, args: { winner, winnings } } ] } = await sq.collectWinnings(4, 9, { from: better4 });
+            const { logs: [ { event, args: { winner, payout } } ] } = await sq.collectWinnings(4, 9, 0, { from: better4 });
 
             assert.strictEqual(event, 'LogPayout');
             assert.strictEqual(winner, better4);
             // 1 quarter of the take * 4/7 of the take, total 1350, 2 quarters won
-            assert.strictEqual(winnings.valueOf(), '385');
+            assert.strictEqual(payout.valueOf(), '385');
           }
+        });
+
+        describe('donationPercentage', () => {
+          it('donation percentage is limited to 100', async () => {
+            await expectThrow(sq.collectWinnings(1, 6, 101, { from: better1 }));
+            const { logs: [ { event, args: { winner, payout, donation } } ] } = await sq.collectWinnings(1, 6, 100, { from: better1 });
+
+            assert.strictEqual(event, 'LogPayout');
+            assert.strictEqual(winner, better1);
+            assert.strictEqual(payout.valueOf(), '0');
+            assert.strictEqual(donation.valueOf(), '337');
+          });
+
+          it('sends the donation to the developer', async () => {
+            const balBefore = await getBalance(developer);
+
+            const { logs: [ { event, args: { winner, payout, donation } } ] } =
+              await sq.collectWinnings(1, 6, 30, { from: better1 });
+
+            assert.strictEqual(event, 'LogPayout');
+            assert.strictEqual(winner, better1);
+            assert.strictEqual(donation.valueOf(), '' + Math.floor(337 * .3));
+            assert.strictEqual(payout.valueOf(), '' + (337 - Math.floor(337 * .3)));
+
+            const balAfter = await getBalance(developer);
+
+            assert.strictEqual(balAfter.sub(balBefore).valueOf(), donation.valueOf());
+          });
         });
 
       });

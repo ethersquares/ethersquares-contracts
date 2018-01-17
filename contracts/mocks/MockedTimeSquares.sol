@@ -4,5 +4,5 @@ import '../Squares.sol';
 import './MockKnowsTime.sol';
 
 contract MockedTimeSquares is Squares, MockKnowsTime {
-    function MockedTimeSquares(IScoreOracle _oracle) Squares(_oracle) public {}
+    function MockedTimeSquares(IScoreOracle _oracle, address _developer) Squares(_oracle, _developer) public {}
 }

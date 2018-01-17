@@ -11,12 +11,16 @@ import './KnowsTime.sol';
 contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
     using SafeMath for uint;
 
-    function Squares(IScoreOracle _oracle) public {
+    function Squares(IScoreOracle _oracle, address _developer) public {
         oracle = _oracle;
+        developer = _developer;
     }
 
     // the oracle for the scores
     IScoreOracle public oracle;
+
+    // the developer of the smart contract
+    address public developer;
 
     // staked ether for each player and each box
     mapping(address => uint[10][10]) public totalSquareStakesByUser;
@@ -54,34 +58,38 @@ contract Squares is KnowsConstants, KnowsTime, KnowsSquares, IKnowsVoterStakes {
         LogBet(msg.sender, home, away, stake);
     }
 
-    event LogPayout(address indexed winner, uint winnings);
+    event LogPayout(address indexed winner, uint payout, uint donation);
 
     // called by the winners to collect winnings for a box
-    function collectWinnings(uint home, uint away) public isValidSquare(home, away) {
-        sendWinningsTo(msg.sender, home, away);
-    }
-
-    // called by anyone to send winnings for a address box, only after all the quarters are reported
-    function sendWinningsTo(address winner, uint home, uint away) public isValidSquare(home, away) {
+    function collectWinnings(uint home, uint away, uint donationPercentage) public isValidSquare(home, away) {
         // score must be finalized
         require(oracle.isFinalized());
+
+        // optional donation
+        require(donationPercentage <= 100);
 
         // the square wins and the total wins are used to calculate the percentage of the total stake that the square is worth
         var (numSquareWins, totalWins) = oracle.getSquareWins(home, away);
 
-        uint userStake = totalSquareStakesByUser[winner][home][away];
+        uint userStake = totalSquareStakesByUser[msg.sender][home][away];
         uint squareStake = totalSquareStakes[home][away];
 
         uint winnings = userStake.mul(totalStakes).mul(numSquareWins).div(totalWins).div(squareStake);
 
         require(winnings > 0);
 
+        // the donation amount
+        uint donation = winnings.mul(donationPercentage).div(100);
+
+        uint payout = winnings.sub(donation);
+
         // clear their stakes - can only collect once
-        totalSquareStakesByUser[winner][home][away] = 0;
+        totalSquareStakesByUser[msg.sender][home][away] = 0;
 
-        winner.transfer(winnings);
+        msg.sender.transfer(payout);
+        developer.transfer(donation);
 
-        LogPayout(winner, winnings);
+        LogPayout(msg.sender, payout, donation);
     }
 
     function getVoterStakes(address voter, uint asOfBlock) public view returns (uint) {
