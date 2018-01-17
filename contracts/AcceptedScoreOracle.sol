@@ -42,9 +42,9 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         super.finalize();
 
         // start the voting period immediately
-        votingPeriodStartTime = currentTime();
         affirmations = 0;
         totalVotes = 0;
+        votingPeriodStartTime = currentTime();
         votingPeriodBlockNumber = block.number;
     }
 
@@ -92,6 +92,8 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         LogUnfinalized(currentTime());
     }
 
+    event LogVote(address indexed voter, bool indexed affirm, uint stake);
+
     // vote to affirm or unaffirm the score called by a user that has some stake
     function vote(bool affirm) public {
         // the voting period has started
@@ -113,6 +115,8 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         // vote has not been counted, so
         if (!userVote.counted) {
             userVote.counted = true;
+            userVote.affirmed = affirm;
+
             totalVotes = totalVotes.add(stake);
             if (affirm) {
                 affirmations = affirmations.add(stake);
@@ -125,7 +129,10 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
                 // changing their vote to a disaffirmation
                 affirmations = affirmations.sub(stake);
             }
+            userVote.affirmed = affirm;
         }
+
+        LogVote(msg.sender, affirm, stake);
     }
 
     function isFinalized() public view returns (bool) {

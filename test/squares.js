@@ -211,7 +211,7 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
         await oracle.finalize({ from: owner });
       });
 
-      it.only('everyone can collect their all winnings and balance just has ether dust', async () => {
+      it('everyone can collect their all winnings and balance just has ether dust', async () => {
         const balBefore = await getBalance(sq.address);
         assert.strictEqual(balBefore.valueOf(), '1351');
 
