@@ -307,12 +307,62 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
   });
 
   describe('#unfinalize', async () => {
-    it('requires that the score is finalized');
-    it('requires that the score is not accepted');
-    it('requires that the voting period has been waited');
-    it('requires that a majority was not reached');
-    it('sets finalized to false, allowing the score to be edited once again');
-    it('fires a log event LogUnfinalized(uint time)');
+    let aso;
+
+    beforeEach(async () => {
+      aso = await MockedTimeAcceptedScoreOracle.new({ from: owner });
+      aso.setTime(GAME_TIME + ONE_DAY);
+      await aso.setSquareWins(1, 1, 1, { from: owner });
+      await aso.setSquareWins(2, 2, 1, { from: owner });
+      await aso.setSquareWins(3, 3, 1, { from: owner });
+      await aso.setSquareWins(4, 4, 1, { from: owner });
+      await aso.setVoterStakesContract(mockVoterStakes.address, { from: owner });
+    });
+
+    it('requires that the score is finalized', async () => {
+      await expectThrow(aso.unfinalize());
+    });
+
+    it('requires that the score is not accepted', async () => {
+      await aso.finalize({ from: owner });
+      await aso.vote(true, { from: better1 });
+      await aso.setTime(GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION);
+      await aso.accept({ from: others[ 0 ] });
+      await expectThrow(aso.unfinalize());
+    });
+
+    it('requires that the voting period has been waited', async () => {
+      await aso.finalize({ from: owner });
+      await aso.vote(true, { from: better1 });
+      await expectThrow(aso.unfinalize());
+    });
+
+    it('requires that a majority was not reached', async () => {
+      await aso.finalize({ from: owner });
+      await aso.vote(true, { from: better1 });
+      await aso.setTime(GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION);
+      await expectThrow(aso.unfinalize());
+    });
+
+    it('sets finalized to false, allowing the score to be edited once again', async () => {
+      await aso.finalize({ from: owner });
+      await aso.vote(false, { from: better1 });
+      await aso.setTime(GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION);
+      await aso.unfinalize();
+
+      assert.strictEqual((await aso.finalized()), false);
+      await aso.setSquareWins(2, 2, 2, { from: owner });
+    });
+
+    it('fires a log event LogUnfinalized(uint time)', async () => {
+      await aso.finalize({ from: owner });
+      await aso.vote(false, { from: better1 });
+      await aso.setTime(GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION);
+      const { logs: [ { event, args: { time } } ] } = await aso.unfinalize();
+
+      assert.strictEqual(event, 'LogUnfinalized');
+      assert.strictEqual(time.valueOf(), '' + (GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION));
+    });
   });
 
   describe('#isFinalized', () => {

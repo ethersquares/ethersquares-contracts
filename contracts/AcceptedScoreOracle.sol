@@ -56,7 +56,7 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         require(finalized);
 
         // voting period is over
-        require(currentTime() > votingPeriodStartTime + VOTING_PERIOD_DURATION);
+        require(currentTime() >= votingPeriodStartTime + VOTING_PERIOD_DURATION);
 
         // score is not already accepted as truth
         require(!accepted);
