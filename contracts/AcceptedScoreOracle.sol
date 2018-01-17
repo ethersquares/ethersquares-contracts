@@ -81,7 +81,7 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
         require(!accepted);
 
         // and the voting period for the score has ended
-        require(currentTime() > votingPeriodStartTime + VOTING_PERIOD_DURATION);
+        require(currentTime() >= votingPeriodStartTime + VOTING_PERIOD_DURATION);
 
         // require people to have
         require(affirmations.mul(10000).div(totalVotes) < 6666);
@@ -136,6 +136,6 @@ contract AcceptedScoreOracle is OwnedScoreOracle {
     }
 
     function isFinalized() public view returns (bool) {
-        return finalized && accepted;
+        return super.isFinalized() && accepted;
     }
 }

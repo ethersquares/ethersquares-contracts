@@ -246,7 +246,7 @@ contract('Squares', ([ owner, developer, ...betters ]) => {
 
       it('can only be called on squares that are won', async () => {
         // no winners
-        await expectThrow(sq.collectWinnings(3, 8, 0, { from: better1 }));
+        await expectThrow(sq.collectWinnings(3, 9, 0, { from: better1 }));
         // didn't win
         await expectThrow(sq.collectWinnings(4, 9, 0, { from: better1 }));
       });

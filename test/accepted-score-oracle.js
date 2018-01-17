@@ -133,7 +133,7 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
     });
   });
 
-  describe.only('#vote', async () => {
+  describe('#vote', async () => {
     let aso;
 
     beforeEach(async () => {
@@ -195,10 +195,39 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
   });
 
   describe('#accept', async () => {
-    it('requires the score to be finalized');
-    it('requires the voting period duration to have been met');
-    it('requires the score to not have already been accepted');
-    it('fires a log event LogAccepted(uint time)');
+    let aso;
+
+    beforeEach(async () => {
+      aso = await MockedTimeAcceptedScoreOracle.new({ from: owner });
+      aso.setTime(GAME_TIME + ONE_DAY);
+      await aso.setSquareWins(1, 1, 1, { from: owner });
+      await aso.setSquareWins(2, 2, 1, { from: owner });
+      await aso.setSquareWins(3, 3, 1, { from: owner });
+      await aso.setSquareWins(4, 4, 1, { from: owner });
+      await aso.setVoterStakesContract(mockVoterStakes.address, { from: owner });
+    });
+
+    async function advanceTime(by = VOTING_PERIOD_DURATION) {
+      const time = await aso.time();
+      await aso.setTime(time.plus(by));
+    }
+
+    it('requires the score to be finalized', async () => {
+      await expectThrow(aso.accept());
+    });
+
+    describe('post-finalize', () => {
+      beforeEach(async () => {
+        // finalize the score
+        await aso.finalize({ from: owner });
+      });
+
+      it('requires voters to have voted', async () => {
+
+      });
+      it('requires the voting period duration to have been met');
+      it('fires a log event LogAccepted(uint time)');
+    });
   });
 
   describe('#unfinalize', async () => {
@@ -210,7 +239,82 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
     it('fires a log event LogUnfinalized(uint time)');
   });
 
-  describe('#isFinalized', () => {
-    it('is not true until the score has been finalized by the owner and accepted by voters');
+  describe.only('#isFinalized', () => {
+
+    it('is not true until the score has been finalized by the owner and accepted by voters', async () => {
+      const aso = await MockedTimeAcceptedScoreOracle.new({ from: owner });
+      await aso.setVoterStakesContract(mockVoterStakes.address, { from: owner });
+
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      aso.setTime(GAME_TIME + ONE_DAY);
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.setSquareWins(1, 1, 1, { from: owner });
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.setSquareWins(2, 2, 1, { from: owner });
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.setSquareWins(3, 3, 1, { from: owner });
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.setSquareWins(4, 4, 1, { from: owner });
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.finalize({ from: owner });
+
+      // still not finalized, because the score is not accepted
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      await aso.vote(true, { from: better1 });
+      await aso.vote(true, { from: better2 });
+      await aso.vote(true, { from: better3 });
+      await aso.vote(false, { from: better4 });
+
+      // not finalized yet
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      // cannot accept because need 66% majority and onyl have 60%
+      await expectThrow(aso.accept({ from: better4 }));
+
+      // vote is changed
+      await aso.vote(true, { from: better4 });
+
+      // now we have majority but time is not advanced enough
+      await expectThrow(aso.accept({ from: better4 }));
+
+      // advance time
+      await aso.setTime(GAME_TIME + ONE_DAY + VOTING_PERIOD_DURATION + ONE_DAY);
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      // but not enough votes
+      await aso.vote(false, { from: better4 });
+      await expectThrow(aso.accept({ from: better4 }));
+      assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.isFinalized(), false);
+
+      // change vote back
+      await aso.vote(true, { from: better4 });
+
+      assert.strictEqual((await aso.totalVotes()).valueOf(), '10');
+      assert.strictEqual((await aso.affirmations()).valueOf(), '10');
+
+      await aso.accept({ from: others[ 0 ] });
+
+      // score is accepted, we are now finalized
+      assert.strictEqual(await aso.accepted(), true);
+      assert.strictEqual(await aso.isFinalized(), true);
+    });
+
   });
 });

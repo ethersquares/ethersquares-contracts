@@ -7,7 +7,10 @@ contract MockKnowsTime {
         return time;
     }
 
+    event LogTimeSet(uint time);
+
     function setTime(uint _time) public {
         time = _time;
+        LogTimeSet(_time);
     }
 }
