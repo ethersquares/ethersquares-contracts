@@ -239,7 +239,7 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
     it('fires a log event LogUnfinalized(uint time)');
   });
 
-  describe.only('#isFinalized', () => {
+  describe('#isFinalized', () => {
 
     it('is not true until the score has been finalized by the owner and accepted by voters', async () => {
       const aso = await MockedTimeAcceptedScoreOracle.new({ from: owner });
@@ -272,6 +272,7 @@ contract('AcceptedScoreOracle', ([ owner, better1, better2, better3, better4, ..
 
       // still not finalized, because the score is not accepted
       assert.strictEqual(await aso.accepted(), false);
+      assert.strictEqual(await aso.finalized(), true);
       assert.strictEqual(await aso.isFinalized(), false);
 
       await aso.vote(true, { from: better1 });
