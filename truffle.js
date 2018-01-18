@@ -24,7 +24,7 @@ module.exports = {
         return new HDWalletProvider(process.env.MNEMONIC_MAINNET, `https://mainnet.infura.io/${process.env.INFURA_API_KEY}`);
       },
       network_id: '1', // Match any network id
-      gasPrice: 30 * ONE_GWEI
+      gasPrice: 4 * ONE_GWEI
     }
   }
 };
