@@ -25,7 +25,7 @@ module.exports = {
       },
       network_id: '1',
       gas: 3000000,
-      gasPrice: 50 * ONE_GWEI
+      gasPrice: 4 * ONE_GWEI
     }
   }
 };
