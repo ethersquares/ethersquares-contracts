@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/moodysalem/ethersquares-contracts#readme",
   "devDependencies": {
-    "truffle": "4.0.4",
+    "truffle": "^4.0.5",
     "truffle-hdwallet-provider": "0.0.3",
     "zeppelin-solidity": "1.5.0"
   }
