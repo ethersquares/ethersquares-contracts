@@ -1,0 +1,457 @@
+{
+  "contractName": "MockedTimeOwnedScoreOracle",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "time",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "winsReported",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "squareWins",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_time",
+          "type": "uint256"
+        }
+      ],
+      "name": "setTime",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "finalize",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "home",
+          "type": "uint256"
+        },
+        {
+          "name": "away",
+          "type": "uint256"
+        },
+        {
+          "name": "wins",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSquareWins",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "isFinalized",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "finalized",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "SCORE_REPORT_START_TIME",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "TOTAL_WINS",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "currentTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "home",
+          "type": "uint256"
+        },
+        {
+          "name": "away",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSquareWins",
+      "outputs": [
+        {
+          "name": "numSquareWins",
+          "type": "uint256"
+        },
+        {
+          "name": "totalWins",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "GAME_START_TIME",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "time",
+          "type": "uint256"
+        }
+      ],
+      "name": "LogTimeSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "home",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "away",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "wins",
+          "type": "uint256"
+        }
+      ],
+      "name": "LogSquareWinsUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "time",
+          "type": "uint256"
+        }
+      ],
+      "name": "LogFinalized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x60606040526000600155336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610957806100586000396000f3006060604052600436106100db576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806316ada547146100e057806316b0732314610109578063395382ee146101325780633beb26c4146101725780634bb278f3146101955780636bceead7146101aa5780638d4e4083146101df5780638da5cb5b1461020c578063b3f05b9714610261578063bd06e7771461028e578063cbb45120146102b7578063d18e81b3146102e0578063d5a8487f14610309578063ebb8550214610350578063f2fde38b14610379575b600080fd5b34156100eb57600080fd5b6100f36103b2565b6040518082815260200191505060405180910390f35b341561011457600080fd5b61011c6103b8565b6040518082815260200191505060405180910390f35b341561013d57600080fd5b61015c60048080359060200190919080359060200190919050506103be565b6040518082815260200191505060405180910390f35b341561017d57600080fd5b61019360048080359060200190919050506103ea565b005b34156101a057600080fd5b6101a861042b565b005b34156101b557600080fd5b6101dd600480803590602001909190803590602001909190803590602001909190505061050e565b005b34156101ea57600080fd5b6101f26106fa565b604051808215151515815260200191505060405180910390f35b341561021757600080fd5b61021f610711565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561026c57600080fd5b610274610736565b604051808215151515815260200191505060405180910390f35b341561029957600080fd5b6102a1610749565b6040518082815260200191505060405180910390f35b34156102c257600080fd5b6102ca610756565b6040518082815260200191505060405180910390f35b34156102eb57600080fd5b6102f361075b565b6040518082815260200191505060405180910390f35b341561031457600080fd5b6103336004808035906020019091908035906020019091905050610765565b604051808381526020018281526020019250505060405180910390f35b341561035b57600080fd5b610363610797565b6040518082815260200191505060405180910390f35b341561038457600080fd5b6103b0600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190505061079f565b005b60675481565b60015481565b600282600a811015156103cd57fe5b600a020181600a811015156103de57fe5b01600091509150505481565b806067819055507fcd3b8d6796e6d2c381298ea3e2beb4080dbcd529f0f4829aa8dfcfc7cd51d35c816040518082815260200191505060405180910390a150565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561048657600080fd5b600460015414151561049757600080fd5b606660009054906101000a900460ff161515156104b357600080fd5b6001606660006101000a81548160ff0219169083151502179055507f32e459b415103ae8dc9c4203aba7b51313bb22f6088ee399170c34fad08850376104f761075b565b6040518082815260200191505060405180910390a1565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561056b57600080fd5b83836000821015801561057e5750600a82105b151561058957600080fd5b6000811015801561059a5750600a81105b15156105a557600080fd5b62015180635a779778016105b761075b565b101515156105c457600080fd5b600484111515156105d457600080fd5b606660009054906101000a900460ff161515156105f057600080fd5b600286600a811015156105ff57fe5b600a020185600a8110151561061057fe5b015492508383111561064e5761064361063285856108f490919063ffffffff16565b6001546108f490919063ffffffff16565b600181905550610685565b838310156106845761067d61066c84866108f490919063ffffffff16565b60015461090d90919063ffffffff16565b6001819055505b5b83600287600a8110151561069557fe5b600a020186600a811015156106a657fe5b01819055507ff05b854fc793f12856c5502dbf67bfbf1f80b60e7f6c0a70ea322a7046cc1b2a86868660405180848152602001838152602001828152602001935050505060405180910390a1505050505050565b6000606660009054906101000a900460ff16905090565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b606660009054906101000a900460ff1681565b62015180635a7797780181565b600481565b6000606754905090565b600080600284600a8110151561077757fe5b600a020183600a8110151561078857fe5b01546004915091509250929050565b635a77977881565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156107fa57600080fd5b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff161415151561083657600080fd5b8073ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050565b600082821115151561090257fe5b818303905092915050565b600080828401905083811015151561092157fe5b80915050929150505600a165627a7a72305820d4206a3574de7d5c9c105d2440d39530a4d25df60cd9b99b1290d64f01d3149c0029",
+  "deployedBytecode": "0x6060604052600436106100db576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806316ada547146100e057806316b0732314610109578063395382ee146101325780633beb26c4146101725780634bb278f3146101955780636bceead7146101aa5780638d4e4083146101df5780638da5cb5b1461020c578063b3f05b9714610261578063bd06e7771461028e578063cbb45120146102b7578063d18e81b3146102e0578063d5a8487f14610309578063ebb8550214610350578063f2fde38b14610379575b600080fd5b34156100eb57600080fd5b6100f36103b2565b6040518082815260200191505060405180910390f35b341561011457600080fd5b61011c6103b8565b6040518082815260200191505060405180910390f35b341561013d57600080fd5b61015c60048080359060200190919080359060200190919050506103be565b6040518082815260200191505060405180910390f35b341561017d57600080fd5b61019360048080359060200190919050506103ea565b005b34156101a057600080fd5b6101a861042b565b005b34156101b557600080fd5b6101dd600480803590602001909190803590602001909190803590602001909190505061050e565b005b34156101ea57600080fd5b6101f26106fa565b604051808215151515815260200191505060405180910390f35b341561021757600080fd5b61021f610711565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561026c57600080fd5b610274610736565b604051808215151515815260200191505060405180910390f35b341561029957600080fd5b6102a1610749565b6040518082815260200191505060405180910390f35b34156102c257600080fd5b6102ca610756565b6040518082815260200191505060405180910390f35b34156102eb57600080fd5b6102f361075b565b6040518082815260200191505060405180910390f35b341561031457600080fd5b6103336004808035906020019091908035906020019091905050610765565b604051808381526020018281526020019250505060405180910390f35b341561035b57600080fd5b610363610797565b6040518082815260200191505060405180910390f35b341561038457600080fd5b6103b0600480803573ffffffffffffffffffffffffffffffffffffffff1690602001909190505061079f565b005b60675481565b60015481565b600282600a811015156103cd57fe5b600a020181600a811015156103de57fe5b01600091509150505481565b806067819055507fcd3b8d6796e6d2c381298ea3e2beb4080dbcd529f0f4829aa8dfcfc7cd51d35c816040518082815260200191505060405180910390a150565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561048657600080fd5b600460015414151561049757600080fd5b606660009054906101000a900460ff161515156104b357600080fd5b6001606660006101000a81548160ff0219169083151502179055507f32e459b415103ae8dc9c4203aba7b51313bb22f6088ee399170c34fad08850376104f761075b565b6040518082815260200191505060405180910390a1565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561056b57600080fd5b83836000821015801561057e5750600a82105b151561058957600080fd5b6000811015801561059a5750600a81105b15156105a557600080fd5b62015180635a779778016105b761075b565b101515156105c457600080fd5b600484111515156105d457600080fd5b606660009054906101000a900460ff161515156105f057600080fd5b600286600a811015156105ff57fe5b600a020185600a8110151561061057fe5b015492508383111561064e5761064361063285856108f490919063ffffffff16565b6001546108f490919063ffffffff16565b600181905550610685565b838310156106845761067d61066c84866108f490919063ffffffff16565b60015461090d90919063ffffffff16565b6001819055505b5b83600287600a8110151561069557fe5b600a020186600a811015156106a657fe5b01819055507ff05b854fc793f12856c5502dbf67bfbf1f80b60e7f6c0a70ea322a7046cc1b2a86868660405180848152602001838152602001828152602001935050505060405180910390a1505050505050565b6000606660009054906101000a900460ff16905090565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b606660009054906101000a900460ff1681565b62015180635a7797780181565b600481565b6000606754905090565b600080600284600a8110151561077757fe5b600a020183600a8110151561078857fe5b01546004915091509250929050565b635a77977881565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156107fa57600080fd5b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff161415151561083657600080fd5b8073ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050565b600082821115151561090257fe5b818303905092915050565b600080828401905083811015151561092157fe5b80915050929150505600a165627a7a72305820d4206a3574de7d5c9c105d2440d39530a4d25df60cd9b99b1290d64f01d3149c0029",
+  "sourceMap": "90:74:13:-;;;697:1:5;670:28;;509:10:17;501:5;;:18;;;;;;;;;;;;;;;;;;90:74:13;;;;;;",
+  "deployedSourceMap": "90:74:13:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;54:16:10;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;670:28:5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;746:30;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;195:92:10;;;;;;;;;;;;;;;;;;;;;;;;;;1733:183:5;;;;;;;;;;;;;;915:725;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2090:83;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;238:20:17;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;821:21:5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;446:71;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;582:35;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;77:78:10;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1922:162:5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;106:49:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;834:169:17;;;;;;;;;;;;;;;;;;;;;;;;;;;;54:16:10;;;;:::o;670:28:5:-;;;;:::o;746:30::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;195:92:10:-;248:5;241:4;:12;;;;263:17;274:5;263:17;;;;;;;;;;;;;;;;;;195:92;:::o;1733:183:5:-;654:5:17;;;;;;;;;;;640:19;;:10;:19;;;632:28;;;;;;;;616:1:5;1788:12;;:26;1780:35;;;;;;;;1834:9;;;;;;;;;;;1833:10;1825:19;;;;;;;;1867:4;1855:9;;:16;;;;;;;;;;;;;;;;;;1882:27;1895:13;:11;:13::i;:::-;1882:27;;;;;;;;;;;;;;;;;;1733:183::o;915:725::-;1150:22;654:5:17;;;;;;;;;;;640:19;;:10;:19;;;632:28;;;;;;;;1002:4:5;1008;153:1:2;145:4;:9;;:22;;;;;165:2;158:4;:9;145:22;137:31;;;;;;;;194:1;186:4;:9;;:22;;;;;206:2;199:4;:9;186:22;178:31;;;;;;;;511:6:5;145:10:1;493:24:5;1032:13;:11;:13::i;:::-;:40;;1024:49;;;;;;;;616:1;1091:4;:18;;1083:27;;;;;;;;1129:9;;;;;;;;;;;1128:10;1120:19;;;;;;;;1175:10;1186:4;1175:16;;;;;;;;;;;;1192:4;1175:22;;;;;;;;;;;1150:47;;1283:4;1263:17;:24;1259:236;;;1318:45;1335:27;1357:4;1335:17;:21;;:27;;;;:::i;:::-;1318:12;;:16;;:45;;;;:::i;:::-;1303:12;:60;;;;1259:236;;;1404:4;1384:17;:24;1380:115;;;1439:45;1456:27;1465:17;1456:4;:8;;:27;;;;:::i;:::-;1439:12;;:16;;:45;;;;:::i;:::-;1424:12;:60;;;;1380:115;1259:236;1580:4;1555:10;1566:4;1555:16;;;;;;;;;;;;1572:4;1555:22;;;;;;;;;;:29;;;;1595:38;1616:4;1622;1628;1595:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;666:1:17;;915:725:5;;;;:::o;2090:83::-;2134:4;2157:9;;;;;;;;;;;2150:16;;2090:83;:::o;238:20:17:-;;;;;;;;;;;;;:::o;821:21:5:-;;;;;;;;;;;;;:::o;446:71::-;511:6;145:10:1;493:24:5;446:71;:::o;582:35::-;616:1;582:35;:::o;77:78:10:-;121:4;144;;137:11;;77:78;:::o;1922:162:5:-;1988:18;2008:14;2042:10;2053:4;2042:16;;;;;;;;;;;;2059:4;2042:22;;;;;;;;;;;616:1;2034:43;;;;1922:162;;;;;:::o;106:49:1:-;145:10;106:49;:::o;834:169:17:-;654:5;;;;;;;;;;;640:19;;:10;:19;;;632:28;;;;;;;;930:1;910:22;;:8;:22;;;;902:31;;;;;;;;967:8;939:37;;960:5;;;;;;;;;;;939:37;;;;;;;;;;;;990:8;982:5;;:16;;;;;;;;;;;;;;;;;;834:169;:::o;584:110:16:-;642:7;669:1;664;:6;;657:14;;;;;;688:1;684;:5;677:12;;584:110;;;;:::o;698:129::-;756:7;771:9;787:1;783;:5;771:17;;806:1;801;:6;;794:14;;;;;;821:1;814:8;;698:129;;;;;:::o",
+  "source": "pragma solidity 0.4.18;\n\nimport '../OwnedScoreOracle.sol';\nimport './MockKnowsTime.sol';\n\ncontract MockedTimeOwnedScoreOracle is OwnedScoreOracle, MockKnowsTime {\n}\n",
+  "sourcePath": "/home/moody/projects/ethersquares-contracts/contracts/mocks/MockedTimeOwnedScoreOracle.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/mocks/MockedTimeOwnedScoreOracle.sol",
+      "exportedSymbols": {
+        "MockedTimeOwnedScoreOracle": [
+          1104
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 1097,
+        "name": "PragmaDirective",
+        "src": "0:23:13"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 624,
+          "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/OwnedScoreOracle.sol",
+          "file": "../OwnedScoreOracle.sol",
+          "scope": 1105,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 1098,
+        "name": "ImportDirective",
+        "src": "25:33:13"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 1022,
+          "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/mocks/MockKnowsTime.sol",
+          "file": "./MockKnowsTime.sol",
+          "scope": 1105,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 1099,
+        "name": "ImportDirective",
+        "src": "59:29:13"
+      },
+      {
+        "attributes": {
+          "contractDependencies": [
+            328,
+            359,
+            373,
+            623,
+            959,
+            990,
+            1021,
+            1350
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            1104,
+            1021,
+            623,
+            990,
+            1350,
+            373,
+            959,
+            359,
+            328
+          ],
+          "name": "MockedTimeOwnedScoreOracle",
+          "nodes": [
+            null
+          ],
+          "scope": 1105
+        },
+        "children": [
+          {
+            "attributes": {
+              "arguments": [
+                null
+              ]
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "OwnedScoreOracle",
+                  "referencedDeclaration": 623,
+                  "type": "contract OwnedScoreOracle"
+                },
+                "id": 1100,
+                "name": "UserDefinedTypeName",
+                "src": "129:16:13"
+              }
+            ],
+            "id": 1101,
+            "name": "InheritanceSpecifier",
+            "src": "129:16:13"
+          },
+          {
+            "attributes": {
+              "arguments": [
+                null
+              ]
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "MockKnowsTime",
+                  "referencedDeclaration": 1021,
+                  "type": "contract MockKnowsTime"
+                },
+                "id": 1102,
+                "name": "UserDefinedTypeName",
+                "src": "147:13:13"
+              }
+            ],
+            "id": 1103,
+            "name": "InheritanceSpecifier",
+            "src": "147:13:13"
+          }
+        ],
+        "id": 1104,
+        "name": "ContractDefinition",
+        "src": "90:74:13"
+      }
+    ],
+    "id": 1105,
+    "name": "SourceUnit",
+    "src": "0:165:13"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-01-18T02:12:55.541Z"
+}

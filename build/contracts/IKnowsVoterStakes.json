@@ -1,0 +1,205 @@
+{
+  "contractName": "IKnowsVoterStakes",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "voter",
+          "type": "address"
+        },
+        {
+          "name": "asOfBlock",
+          "type": "uint256"
+        }
+      ],
+      "name": "getVoterStakes",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity 0.4.18;\n\ninterface IKnowsVoterStakes {\n    function getVoterStakes(address voter, uint asOfBlock) public view returns (uint);\n}\n",
+  "sourcePath": "/home/moody/projects/ethersquares-contracts/contracts/interfaces/IKnowsVoterStakes.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/interfaces/IKnowsVoterStakes.sol",
+      "exportedSymbols": {
+        "IKnowsVoterStakes": [
+          971
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 961,
+        "name": "PragmaDirective",
+        "src": "0:23:8"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "interface",
+          "documentation": null,
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            971
+          ],
+          "name": "IKnowsVoterStakes",
+          "scope": 972
+        },
+        "children": [
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "getVoterStakes",
+              "payable": false,
+              "scope": 971,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "voter",
+                      "scope": 970,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "type": "address"
+                        },
+                        "id": 962,
+                        "name": "ElementaryTypeName",
+                        "src": "83:7:8"
+                      }
+                    ],
+                    "id": 963,
+                    "name": "VariableDeclaration",
+                    "src": "83:13:8"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "asOfBlock",
+                      "scope": 970,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 964,
+                        "name": "ElementaryTypeName",
+                        "src": "98:4:8"
+                      }
+                    ],
+                    "id": 965,
+                    "name": "VariableDeclaration",
+                    "src": "98:14:8"
+                  }
+                ],
+                "id": 966,
+                "name": "ParameterList",
+                "src": "82:31:8"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 970,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 967,
+                        "name": "ElementaryTypeName",
+                        "src": "135:4:8"
+                      }
+                    ],
+                    "id": 968,
+                    "name": "VariableDeclaration",
+                    "src": "135:4:8"
+                  }
+                ],
+                "id": 969,
+                "name": "ParameterList",
+                "src": "134:6:8"
+              }
+            ],
+            "id": 970,
+            "name": "FunctionDefinition",
+            "src": "59:82:8"
+          }
+        ],
+        "id": 971,
+        "name": "ContractDefinition",
+        "src": "25:118:8"
+      }
+    ],
+    "id": 972,
+    "name": "SourceUnit",
+    "src": "0:144:8"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-01-18T02:12:55.540Z"
+}

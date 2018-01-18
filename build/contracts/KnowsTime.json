@@ -1,0 +1,214 @@
+{
+  "contractName": "KnowsTime",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "currentTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60606040523415600e57600080fd5b609e8061001c6000396000f300606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d18e81b3146044575b600080fd5b3415604e57600080fd5b6054606a565b6040518082815260200191505060405180910390f35b6000429050905600a165627a7a72305820aa2f91c13655271f66b0e9592c799c87f6fcd69e0dc1d0ce5ac06d37e624b8080029",
+  "deployedBytecode": "0x606060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063d18e81b3146044575b600080fd5b3415604e57600080fd5b6054606a565b6040518082815260200191505060405180910390f35b6000429050905600a165627a7a72305820aa2f91c13655271f66b0e9592c799c87f6fcd69e0dc1d0ce5ac06d37e624b8080029",
+  "sourceMap": "89:118:3:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "89:118:3:-;;;;;;;;;;;;;;;;;;;;;;;;128:77;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;172:4;195:3;188:10;;128:77;:::o",
+  "source": "pragma solidity 0.4.18;\n\nimport './interfaces/IKnowsTime.sol';\n\n// knows what time it is\ncontract KnowsTime is IKnowsTime {\n    function currentTime() public view returns (uint) {\n        return now;\n    }\n}\n",
+  "sourcePath": "/home/moody/projects/ethersquares-contracts/contracts/KnowsTime.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/KnowsTime.sol",
+      "exportedSymbols": {
+        "KnowsTime": [
+          373
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 361,
+        "name": "PragmaDirective",
+        "src": "0:23:3"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 960,
+          "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/interfaces/IKnowsTime.sol",
+          "file": "./interfaces/IKnowsTime.sol",
+          "scope": 374,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 362,
+        "name": "ImportDirective",
+        "src": "25:37:3"
+      },
+      {
+        "attributes": {
+          "contractDependencies": [
+            959
+          ],
+          "contractKind": "contract",
+          "documentation": null,
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            373,
+            959
+          ],
+          "name": "KnowsTime",
+          "scope": 374
+        },
+        "children": [
+          {
+            "attributes": {
+              "arguments": [
+                null
+              ]
+            },
+            "children": [
+              {
+                "attributes": {
+                  "contractScope": null,
+                  "name": "IKnowsTime",
+                  "referencedDeclaration": 959,
+                  "type": "contract IKnowsTime"
+                },
+                "id": 363,
+                "name": "UserDefinedTypeName",
+                "src": "111:10:3"
+              }
+            ],
+            "id": 364,
+            "name": "InheritanceSpecifier",
+            "src": "111:10:3"
+          },
+          {
+            "attributes": {
+              "constant": true,
+              "implemented": true,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "currentTime",
+              "payable": false,
+              "scope": 373,
+              "stateMutability": "view",
+              "superFunction": 958,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 365,
+                "name": "ParameterList",
+                "src": "148:2:3"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 372,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 366,
+                        "name": "ElementaryTypeName",
+                        "src": "172:4:3"
+                      }
+                    ],
+                    "id": 367,
+                    "name": "VariableDeclaration",
+                    "src": "172:4:3"
+                  }
+                ],
+                "id": 368,
+                "name": "ParameterList",
+                "src": "171:6:3"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 368
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "argumentTypes": null,
+                          "overloadedDeclarations": [
+                            null
+                          ],
+                          "referencedDeclaration": 1364,
+                          "type": "uint256",
+                          "value": "now"
+                        },
+                        "id": 369,
+                        "name": "Identifier",
+                        "src": "195:3:3"
+                      }
+                    ],
+                    "id": 370,
+                    "name": "Return",
+                    "src": "188:10:3"
+                  }
+                ],
+                "id": 371,
+                "name": "Block",
+                "src": "178:27:3"
+              }
+            ],
+            "id": 372,
+            "name": "FunctionDefinition",
+            "src": "128:77:3"
+          }
+        ],
+        "id": 373,
+        "name": "ContractDefinition",
+        "src": "89:118:3"
+      }
+    ],
+    "id": 374,
+    "name": "SourceUnit",
+    "src": "0:208:3"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-01-18T02:12:55.539Z"
+}

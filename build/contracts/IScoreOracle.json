@@ -1,0 +1,315 @@
+{
+  "contractName": "IScoreOracle",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "isFinalized",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "home",
+          "type": "uint256"
+        },
+        {
+          "name": "away",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSquareWins",
+      "outputs": [
+        {
+          "name": "numSquareWins",
+          "type": "uint256"
+        },
+        {
+          "name": "totalWins",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity 0.4.18;\n\ninterface IScoreOracle {\n    function getSquareWins(uint home, uint away) public view returns (uint numSquareWins, uint totalWins);\n    function isFinalized() public view returns (bool);\n}\n",
+  "sourcePath": "/home/moody/projects/ethersquares-contracts/contracts/interfaces/IScoreOracle.sol",
+  "ast": {
+    "attributes": {
+      "absolutePath": "/home/moody/projects/ethersquares-contracts/contracts/interfaces/IScoreOracle.sol",
+      "exportedSymbols": {
+        "IScoreOracle": [
+          990
+        ]
+      }
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "0.4",
+            ".18"
+          ]
+        },
+        "id": 973,
+        "name": "PragmaDirective",
+        "src": "0:23:9"
+      },
+      {
+        "attributes": {
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "interface",
+          "documentation": null,
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            990
+          ],
+          "name": "IScoreOracle",
+          "scope": 991
+        },
+        "children": [
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "getSquareWins",
+              "payable": false,
+              "scope": 990,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "home",
+                      "scope": 984,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 974,
+                        "name": "ElementaryTypeName",
+                        "src": "77:4:9"
+                      }
+                    ],
+                    "id": 975,
+                    "name": "VariableDeclaration",
+                    "src": "77:9:9"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "away",
+                      "scope": 984,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 976,
+                        "name": "ElementaryTypeName",
+                        "src": "88:4:9"
+                      }
+                    ],
+                    "id": 977,
+                    "name": "VariableDeclaration",
+                    "src": "88:9:9"
+                  }
+                ],
+                "id": 978,
+                "name": "ParameterList",
+                "src": "76:22:9"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "numSquareWins",
+                      "scope": 984,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 979,
+                        "name": "ElementaryTypeName",
+                        "src": "120:4:9"
+                      }
+                    ],
+                    "id": 980,
+                    "name": "VariableDeclaration",
+                    "src": "120:18:9"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "totalWins",
+                      "scope": 984,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 981,
+                        "name": "ElementaryTypeName",
+                        "src": "140:4:9"
+                      }
+                    ],
+                    "id": 982,
+                    "name": "VariableDeclaration",
+                    "src": "140:14:9"
+                  }
+                ],
+                "id": 983,
+                "name": "ParameterList",
+                "src": "119:36:9"
+              }
+            ],
+            "id": 984,
+            "name": "FunctionDefinition",
+            "src": "54:102:9"
+          },
+          {
+            "attributes": {
+              "body": null,
+              "constant": true,
+              "implemented": false,
+              "isConstructor": false,
+              "modifiers": [
+                null
+              ],
+              "name": "isFinalized",
+              "payable": false,
+              "scope": 990,
+              "stateMutability": "view",
+              "superFunction": null,
+              "visibility": "public"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 985,
+                "name": "ParameterList",
+                "src": "181:2:9"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "name": "",
+                      "scope": 989,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "value": null,
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 986,
+                        "name": "ElementaryTypeName",
+                        "src": "205:4:9"
+                      }
+                    ],
+                    "id": 987,
+                    "name": "VariableDeclaration",
+                    "src": "205:4:9"
+                  }
+                ],
+                "id": 988,
+                "name": "ParameterList",
+                "src": "204:6:9"
+              }
+            ],
+            "id": 989,
+            "name": "FunctionDefinition",
+            "src": "161:50:9"
+          }
+        ],
+        "id": 990,
+        "name": "ContractDefinition",
+        "src": "25:188:9"
+      }
+    ],
+    "id": 991,
+    "name": "SourceUnit",
+    "src": "0:214:9"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.18+commit.9cf6e910.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "1.0.1",
+  "updatedAt": "2018-01-18T02:12:55.540Z"
+}
